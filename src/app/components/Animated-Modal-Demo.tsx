@@ -1,9 +1,7 @@
 "use client"
 
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/app/components/ui/Animated-Modal";
-import Image from "next/image";
-import resume from "@/app/components/media/resume.png";
-import { LayersIcon } from "lucide-react";
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/app/components/ui/Animated-Modal"
+import { LayersIcon } from "lucide-react"
 
 export default function AnimatedModalDemo() {
   return (
@@ -20,22 +18,16 @@ export default function AnimatedModalDemo() {
         <ModalBody>
           <ModalContent>
             <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
-              Want To Offer A 
+              Want To Offer A
               <span className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700 border border-gray-200">
                 JOB
               </span>{" "}
               Click Me 💼
             </h4>
             <div className="flex justify-center items-center">
-              <div className="rounded-xl mt-4 p-2 bg-white dark:bg-neutral-800 dark:border-neutral-700 border border-neutral-100 flex-shrink-0 overflow-hidden relative">
-                <div className="rounded-lg h-40 w-40 md:h-60 md:w-60 overflow-hidden flex items-center justify-center relative z-10">
-                  <Image
-                    src={resume}
-                    alt="resume"
-                    width={700}
-                    height={700}
-                    className="rounded-lg w-full h-full object-contain"
-                  />
+              <div className="rounded-xl mt-4 p-2 bg-white dark:bg-neutral-800 dark:border-neutral-700 border border-neutral-100 flex-shrink-0 overflow-hidden relative group">
+                <div className="rounded-lg h-40 w-40 md:h-60 md:w-60 overflow-hidden flex items-center justify-center relative z-10 transition-all duration-300 group-hover:scale-150 group-hover:h-[80vh] group-hover:w-[80vw]">
+                  <iframe src="/pdf.pdf" width="100%" height="100%" className="pdf-iframe" />
                 </div>
               </div>
             </div>
@@ -68,6 +60,13 @@ export default function AnimatedModalDemo() {
             <button className="px-2 py-1 bg-gray-200 text-black dark:bg-black dark:border-black dark:text-white border border-gray-300 rounded-md text-sm w-28">
               Cancel
             </button>
+            <a
+              href="/pdf.pdf"
+              download
+              className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28 text-center"
+            >
+              Download⬇️
+            </a>
             <button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28">
               Hire Now 💼
             </button>
@@ -75,5 +74,6 @@ export default function AnimatedModalDemo() {
         </ModalBody>
       </Modal>
     </div>
-  );
+  )
 }
+

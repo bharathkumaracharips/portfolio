@@ -11,7 +11,7 @@ import { LampDemo } from "./components/lamp-demo";
 import { BackgroundBeamsWithCollisionDemo } from "./components/background-beams-with-collision-demo";
 export default function Page() {
   return (
-    <div className="flex flex-col  items-center justify-center gap-10 p-5 w-full overflow-hidden">
+    <div className="flex flex-col bg-black  items-center justify-center gap-10 p-5 w-full overflow-hidden">
       {/* Background Lines */}
       <div className="relative z-10 w-full ">
         <BackgroundLinesDemo />
@@ -21,15 +21,12 @@ export default function Page() {
       <SpotlightNewDemo/>
       </div>
       
-
-    
-
       <div className="relative z-10 w-full ">
       <BackgroundBeamsWithCollisionDemo/>
       </div>
       
     {/* AnimatedModalDemo */} 
-    <div className="relative z-10 w-full ">
+    <div className="relative z-100 w-full ">
         <AnimatedModalDemo />
       </div>
 

@@ -4,41 +4,82 @@ import { GlowingEffect } from "@/app/components/ui/glowing-effect";
 import { LinkPreview } from "@/app/components/ui/link-preview";
 export function LinkPreviewDemo() {
   return (
-    <ul className="grid grid-cols-1 grid-rows-none gap-4 md:grid-cols-12 md:grid-rows-3 lg:gap-4 xl:max-h-[34rem] xl:grid-rows-2">
+    <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:grid-rows-2">
       <GridItem
-        area="md:[grid-area:1/1/2/7] xl:[grid-area:1/1/2/5]"
+        area="md:[grid-area:1/1/2/2] xl:[grid-area:1/1/2/2]"
         icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}
         title={<LinkPreview url="https://www.cprogramming.com/" className="font-bold">C</LinkPreview>}
         description="Programming language for system development."
       />
       <GridItem
-        area="md:[grid-area:1/7/2/13] xl:[grid-area:2/1/3/5]"
+        area="md:[grid-area:1/2/2/3] xl:[grid-area:1/2/2/3]"
         icon={<Settings className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title={<LinkPreview url="https://framer.com/motion" className="font-bold">C++</LinkPreview>}
+        title={<LinkPreview url="https://isocpp.org/" className="font-bold">C++</LinkPreview>}
         description="Popular language for competitive programming and game development."
       />
       <GridItem
-        area="md:[grid-area:2/1/3/7] xl:[grid-area:1/5/3/8]"
+        area="md:[grid-area:1/3/2/4] xl:[grid-area:1/3/2/4]"
         icon={<Lock className="h-4 w-4 text-black dark:text-neutral-400" />}
         title={<LinkPreview url="https://soliditylang.org/" className="font-bold">Solidity</LinkPreview>}
         description="Smart contract programming language for Ethereum."
       />
       <GridItem
-        area="md:[grid-area:2/7/3/13] xl:[grid-area:1/8/2/13]"
+        area="md:[grid-area:1/4/2/5] xl:[grid-area:1/4/2/5]"
         icon={<Sparkles className="h-4 w-4 text-black dark:text-neutral-400" />}
         title={<LinkPreview url="https://www.rust-lang.org/" className="font-bold">Rust</LinkPreview>}
         description="Memory-safe, high-performance programming language."
       />
       <GridItem
-        area="md:[grid-area:3/1/4/13] xl:[grid-area:2/8/3/13]"
+        area="md:[grid-area:2/1/3/2] xl:[grid-area:2/1/3/2]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
         title={<LinkPreview url="https://polkadot.network/" className="font-bold">Polkadot</LinkPreview>}
+        description="Blockchain interoperability platform."
+      />
+      <GridItem
+        area="md:[grid-area:2/2/3/3] xl:[grid-area:2/2/3/3]"
+        icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+        title={<LinkPreview url="https://github.com/" className="font-bold">Git/Github</LinkPreview>}
+        description="Blockchain interoperability platform."
+      />
+      <GridItem
+        area="md:[grid-area:2/3/3/4] xl:[grid-area:2/3/3/4]"
+        icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+        title={<LinkPreview url="" className="font-bold">Data Structures and Algorithms</LinkPreview>}
+        description="Blockchain interoperability platform."
+      />
+      <GridItem
+        area="md:[grid-area:2/4/3/5] xl:[grid-area:2/4/3/5]"
+        icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+        title={<LinkPreview url="" className="font-bold">Block Chain Technology</LinkPreview>}
+        description="Blockchain interoperability platform."
+      />
+      <GridItem
+        area="md:[grid-area:3/1/4/2] xl:[grid-area:3/1/4/2]"
+        icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+        title={<LinkPreview url="" className="font-bold">Ethical Hacking</LinkPreview>}
+        description="Blockchain interoperability platform."
+      />
+      <GridItem
+        area="md:[grid-area:3/2/4/3] xl:[grid-area:3/2/4/3]"
+        icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+        title={<LinkPreview url="" className="font-bold">Networking</LinkPreview>}
+        description="Blockchain interoperability platform."
+      />
+      <GridItem
+        area="md:[grid-area:3/3/4/4] xl:[grid-area:3/3/4/4]"
+        icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+        title={<LinkPreview url="" className="font-bold">Web Development</LinkPreview>}
+        description="Blockchain interoperability platform."
+      />
+      <GridItem
+        area="md:[grid-area:3/4/4/5] xl:[grid-area:3/4/4/5]"
+        icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
+        title={<LinkPreview url="" className="font-bold">DBMS</LinkPreview>}
         description="Blockchain interoperability platform."
       />
     </ul>
   );
 }
-
 interface GridItemProps {
   area: string;
   icon: React.ReactNode;

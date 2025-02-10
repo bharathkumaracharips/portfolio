@@ -13,7 +13,7 @@ export default function Page() {
   return (
     <div className="flex flex-col bg-black  items-center justify-center gap-10 p-5 w-full overflow-hidden">
       {/* Background Lines */}
-      <div className="relative z-10 w-full ">
+      <div className="relative z-10 w-full " id="Home">
         <BackgroundLinesDemo />
       </div>
     
@@ -45,7 +45,7 @@ export default function Page() {
       <LampDemo/>
       </div>
       {/* Floating Dock */}
-      <div className="relative z-10 w-full  h-[100px]  overflow-visible">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[1000]">
         <FloatingDockDemo />
       </div>
     </div>

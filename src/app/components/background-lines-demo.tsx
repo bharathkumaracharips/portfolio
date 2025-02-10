@@ -3,7 +3,7 @@
 import React from "react";
 import { BackgroundLines } from "@/app/components/ui/background-lines";
 import Typewriter from "typewriter-effect";
-
+import IconCloudDemo from "./icon-cloud-demo";
 export function BackgroundLinesDemo() {
   return (
     <BackgroundLines className="flex items-center  justify-center w-full flex-col px-4 relative">
@@ -17,8 +17,8 @@ export function BackgroundLinesDemo() {
       </h1>
 
       {/* Subheading with Gradient Effect */}
-      <h2 className="text-xl md:text-2xl text-center font-medium relative z-20 bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-gray-900 dark:from-white dark:to-gray-400">
-        BLOCKCHAIN DEVELOPER | ETHICAL HACKER
+      <h2 className="text-xl md:text-2xl text-center font-medium relative z-20 bg-clip-text text-transparent bg-gradient-to-r from-gray-700 to-gray-900 dark:from-white dark:to-gray-300">
+        BLOCKCHAIN DEVELOPER | ETHICAL HACKER | WEB DEVELOPER
       </h2>
 
       {/* Description with Subtle Gradient */}

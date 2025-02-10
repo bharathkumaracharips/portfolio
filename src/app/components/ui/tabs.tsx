@@ -68,7 +68,7 @@ export const Tabs = ({
               />
             )}
 
-            <span className="relative block text-xl text-black dark:text-white">
+            <span className="relative block text-xl text-black dark:text-white tracking-wide">
               {tab.title}
             </span>
           </button>

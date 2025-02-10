@@ -3,11 +3,11 @@ import {
   IconHome,
   IconCertificate,
   IconBriefcase,
-  IconArticle,
   IconClockHour5,
   IconMail,
   IconBrandLinkedin,
   IconBrandGithub,
+  IconBulb,
 } from "@tabler/icons-react"
 
 export default function FloatingDockDemo() {
@@ -15,11 +15,11 @@ export default function FloatingDockDemo() {
     {
       title: "Home",
       icon: <IconHome className="h-full w-full" />,
-      href: "#",
+      href: "#Home",
     },
     {
       title: "Skills",
-      icon: <IconCertificate className="h-full w-full" />,
+      icon: <IconBulb className="h-full w-full" />,
       href: "#Skills",
     },
     {
@@ -45,12 +45,14 @@ export default function FloatingDockDemo() {
     {
       title: "LinkedIn",
       icon: <IconBrandLinkedin className="h-full w-full" />,
-      href: "#",
+      href: "https://www.linkedin.com/in/ps-bharath-kumar/",
+      target: "_blank",
     },
     {
       title: "GitHub",
       icon: <IconBrandGithub className="h-full w-full" />,
-      href: "#",
+      href: "https://github.com/bharathkumaracharips",
+      target: "_blank",
     },
   ]
 

@@ -2,7 +2,7 @@
 
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalTrigger } from "@/app/components/ui/Animated-Modal"
 import { LayersIcon } from "lucide-react"
-
+import { IconFileCv } from '@tabler/icons-react';
 export default function AnimatedModalDemo() {
   return (
     <div className="fixed top-4 right-4 z-50">
@@ -12,7 +12,7 @@ export default function AnimatedModalDemo() {
             Resume Is Here 🙋‍♂️
           </span>
           <div className="-translate-x-40 group-hover/modal-btn:translate-x-0 flex items-center justify-center absolute inset-0 transition duration-500 text-white z-20">
-            📜
+          <IconFileCv stroke={1} color="black" />
           </div>
         </ModalTrigger>
         <ModalBody>

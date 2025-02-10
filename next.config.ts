@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  images: {
+    domains: ['assets.aceternity.com', 'images.unsplash.com', 'api.microlink.io'], // Add Unsplash domain here
+  },
+  // other config options can go here
+}
 
-export default nextConfig;
+export default nextConfig

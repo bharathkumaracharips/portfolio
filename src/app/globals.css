@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Root variables for light and dark mode */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,8 +15,29 @@
   }
 }
 
+/* General body styling */
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Page Container */
+.page-container {
+  @apply flex flex-col items-center justify-center gap-10 p-5 w-full overflow-hidden;
+}
+
+/* Background Lines */
+.background-lines-container {
+  @apply w-full h-auto;
+}
+
+/* Floating Dock */
+.floating-dock {
+  @apply relative z-10 w-full max-w-5xl;
+}
+
+/* Link Preview */
+.Link-Preview {
+  @apply flex w-full max-w-4xl items-center justify-center p-6;
 }

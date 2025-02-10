@@ -1,0 +1,55 @@
+"use client"
+
+import { Tabs } from "@/app/components/ui/tabs"
+// import video from "@/app/components/media/b"
+export function TabsDemo() {
+  const tabs = [
+    {
+      title: "Block Stamp",
+      value: "Block Stamp",
+      content: (
+        <div className="w-full overflow-hidden relative h-full rounded-2xl p-10 text-xl md:text-4xl font-bold text-white bg-gradient-to-br from-purple-700 to-violet-900">
+          <p>Block Stamp</p>
+          <video className="mt-4 w-full rounded-lg" controls>
+            <source src="/videos/block-stamp.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      ),
+    },
+    {
+      title: "Block Meet",
+      value: "Block Meet",
+      content: (
+        <div className="w-full overflow-hidden relative h-full rounded-2xl p-10 text-xl md:text-4xl font-bold text-white bg-gradient-to-br from-purple-700 to-violet-900">
+          <p>Block Meet</p>
+        </div>
+      ),
+    },
+    {
+      title: "project 3",
+      value: "project 3",
+      content: (
+        <div className="w-full overflow-hidden relative h-full rounded-2xl p-10 text-xl md:text-4xl font-bold text-white bg-gradient-to-br from-purple-700 to-violet-900">
+          <p>project 3</p>
+        </div>
+      ),
+    },
+    {
+      title: "project 4",
+      value: "project 4",
+      content: (
+        <div className="w-full overflow-hidden relative h-full rounded-2xl p-10 text-xl md:text-4xl font-bold text-white bg-gradient-to-br from-purple-700 to-violet-900">
+          <p>project 4</p>
+        </div>
+      ),
+    },
+  ]
+
+  return (
+    <div className="h-[20rem] md:h-[40rem] [perspective:1000px] relative flex flex-col max-w-5xl mx-auto w-full items-start justify-start my-40">
+      <Tabs tabs={tabs} />
+    </div>
+  )
+}
+

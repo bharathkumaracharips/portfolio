@@ -17,11 +17,11 @@ export default function Page() {
         <BackgroundLinesDemo />
       </div>
     
-      <div className="relative z-10 w-full ">
+      <div className="relative z-10 w-full" id="Skills">
       <SpotlightNewDemo/>
       </div>
       
-      <div className="relative z-10 w-full ">
+      <div className="relative z-10 w-full" id="Projects">
       <BackgroundBeamsWithCollisionDemo/>
       </div>
       
@@ -30,20 +30,19 @@ export default function Page() {
         <AnimatedModalDemo />
       </div>
 
-     {/* Timeline */} 
-     <div className="relative z-10 w-full ">
+     {/* Timeline */}  
+     <div className="relative z-10 w-full " id="Timeline">
         <TimelineDemo />
       </div>
 
       {/* Infinite Moving Cards (3D Cards are inside) */}
-      <div className="relative z-10 w-full ">
+      <div className="relative z-10 w-full " id="Certificates">
         <InfiniteMovingCardsDemo />
       </div>
 
     
-      <div className="relative z-9 w-full ">
+      <div className="relative z-9 w-full" id="Contact">
       <LampDemo/>
-    
       </div>
       {/* Floating Dock */}
       <div className="relative z-10 w-full  h-[100px]  overflow-visible">

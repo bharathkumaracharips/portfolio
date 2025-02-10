@@ -67,9 +67,11 @@ export default function AnimatedModalDemo() {
             >
               Download⬇️
             </a>
-            <button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28">
+            <a href="#Contact"><button className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28">
               Hire Now 💼
             </button>
+            
+            </a>
           </ModalFooter>
         </ModalBody>
       </Modal>

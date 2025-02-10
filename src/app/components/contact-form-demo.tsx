@@ -1,3 +1,4 @@
+require('dotenv').config();
 import type React from "react";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
@@ -106,3 +107,4 @@ const LabelInputContainer = ({
 }) => {
   return <div className={cn("flex flex-col space-y-2 w-full", className)}>{children}</div>;
 };
+

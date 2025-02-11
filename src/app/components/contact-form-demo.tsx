@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import type React from "react";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
 import { cn } from "@/app/lib/utils";
 import { IconSend } from "@tabler/icons-react";
 import emailjs from "emailjs-com"; // Import emailjs
-import { Coins } from "lucide-react";
 
 export default function ContactFormDemo() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null); // To manage the success or error message

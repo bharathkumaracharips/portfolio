@@ -3,7 +3,6 @@
 import React from "react";
 import { BackgroundLines } from "@/app/components/ui/background-lines";
 import Typewriter from "typewriter-effect";
-import IconCloudDemo from "./icon-cloud-demo";
 export function BackgroundLinesDemo() {
   return (
     <BackgroundLines className="flex items-center  justify-center w-full flex-col px-4 relative">

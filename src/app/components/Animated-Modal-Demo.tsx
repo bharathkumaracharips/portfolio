@@ -45,7 +45,7 @@ export default function AnimatedModalDemo() {
                   type="application/pdf"
                   className="w-full h-full rounded-lg"
                 >
-                  <p>It appears your browser doesn't support PDFs.
+                  <p>It appears your browser doesn&apo;st support PDFs.
                     <a href="/pdf.pdf" download className="text-blue-500 hover:underline">Download the PDF</a> instead.
                   </p>
                 </object>
@@ -87,7 +87,7 @@ export default function AnimatedModalDemo() {
                 download
                 className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28 text-center"
               >
-                Download⬇️
+                Download ⬇️
               </a>
               <a href="#Contact">
                 <button

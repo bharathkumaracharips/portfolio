@@ -1,7 +1,7 @@
 import { IconCloud } from "@/app/components/ui/icon-cloud"
 
 const slugs = [
- "c",
+  "c",
   "c++",
   "solidity",
   "javascript",
@@ -26,8 +26,8 @@ export default function IconCloudDemo() {
 
   return (
     <div className="relative flex w-full max-w-xs items-center justify-center bg-[#0c0c0c] overflow-hidden rounded-lg bg-black/[2.96] antialiased bg-grid-white/[1.02] border border-white">
+      <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-[#ffffff] opacity-20 pointer-events-none"></div>
       <IconCloud images={images} />
     </div>
   )
 }
-

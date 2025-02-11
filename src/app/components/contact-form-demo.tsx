@@ -5,6 +5,7 @@ import { Input } from "@/app/components/ui/input";
 import { cn } from "@/app/lib/utils";
 import { IconSend } from "@tabler/icons-react";
 import emailjs from "emailjs-com"; // Import emailjs
+import { Coins } from "lucide-react";
 
 export default function ContactFormDemo() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null); // To manage the success or error message
@@ -15,19 +16,18 @@ export default function ContactFormDemo() {
     subject: "",
     message: "",
   }); // Store form data
-  const [isFormValid, setIsFormValid] = useState(false); // Track if form is valid
+  const [isFormValid, setIsFormValid] = useState(true); // Track if form is valid
   const [loading, setLoading] = useState(false); // Track loading state for preventing duplicate requests
 
-  // Form validation function
-  useEffect(() => {
-    // Check if all fields are filled in
-    const isValid =
+  // Form validation logic
+  const validateForm = () => {
+    return (
       formData.name.trim() !== "" &&
       formData.email.trim() !== "" &&
       formData.subject.trim() !== "" &&
-      formData.message.trim() !== "";
-    setIsFormValid(isValid); // Set form validity based on the fields
-  }, [formData]);
+      formData.message.trim() !== ""
+    );
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,12 +40,14 @@ export default function ContactFormDemo() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Check if form is valid before trying to send
-    if (!isFormValid) {
-      // This will trigger when form is incomplete
+    // Check if the form is valid
+    const isValid = validateForm();
+    setIsFormValid(isValid);
+
+    if (!isValid) {
       setStatusMessage("Please fill in all fields.");
       setStatusType("warning");
-      return; // Don't continue submitting the form
+      return; // Prevent form submission if it's invalid
     }
 
     setLoading(true); // Set loading to true when the form is being submitted
@@ -140,7 +142,7 @@ export default function ContactFormDemo() {
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
-          disabled={loading || !isFormValid} // Disable the button if the form is not valid or loading is true
+          disabled={loading}
         >
           {loading ? "Sending..." : "Send Message"}
           <IconSend className="inline-block ml-2 h-4 w-4" />
@@ -148,8 +150,15 @@ export default function ContactFormDemo() {
         </button>
       </form>
 
-      {/* Conditional rendering for messages */}
-      {statusMessage && (
+      {/* Conditional rendering for error/warning messages */}
+      {!isFormValid && (
+        <div className="mt-4 p-4 text-center rounded-md text-sm bg-yellow-100 text-yellow-700">
+          Please fill in all fields.
+        </div>
+      )}
+
+      {/* Conditional rendering for status messages */}
+     {statusMessage?.startsWith("Your") && (
         <div
           className={`mt-4 p-4 text-center rounded-md text-sm ${
             statusType === "success"

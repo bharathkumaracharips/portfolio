@@ -16,31 +16,37 @@ export default function FloatingDockDemo() {
       title: "Home",
       icon: <IconHome className="h-full w-full" />,
       href: "#Home",
+      target: "",
     },
     {
       title: "Skills",
       icon: <IconBulb className="h-full w-full" />,
       href: "#Skills",
+      target: "",
     },
     {
       title: "Projects",
       icon: <IconBriefcase className="h-full w-full" />,
       href: "#Projects",
+      target: "",
     },
     {
       title: "Timeline",
       icon: <IconClockHour5 className="h-full w-full" />,
       href: "#Timeline",
+      target: "",
     },
     {
       title: "Certificates",
       icon: <IconCertificate className="h-full w-full" />,
       href: "#Certificates",
+      target: "",
     },
     {
       title: "Contact",
       icon: <IconMail className="h-full w-full" />,
       href: "#Contact",
+      target: "",
     },
     {
       title: "LinkedIn",

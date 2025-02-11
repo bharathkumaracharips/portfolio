@@ -26,7 +26,7 @@ export default function Page() {
       </div>
       
     {/* AnimatedModalDemo */} 
-    <div className="relative z-100 w-full ">
+    <div className="relative z-[1000] w-full ">
         <AnimatedModalDemo />
       </div>
 

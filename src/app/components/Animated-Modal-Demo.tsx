@@ -29,12 +29,12 @@ export default function AnimatedModalDemo() {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] mb-[100px]">
           <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-lg max-w-3xl w-full">
             <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
-              Want To Offer A
+              Had a 
               <span className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700 border border-gray-200">
-                JOB
+                JOB OFFER
               </span>{" "}
               Click Me 💼
             </h4>
@@ -51,7 +51,7 @@ export default function AnimatedModalDemo() {
                 </object>
               </div>
             </div>
-            <div className="py-10 flex flex-wrap gap-x-4 gap-y-6 items-start justify-start max-w-sm mx-auto">
+            <div className="pt-10 flex flex-wrap gap-x-4 gap-y-6 items-start justify-center w-full mx-auto">
               <div className="flex items-center justify-center">
                 <span className="text-neutral-700 dark:text-neutral-300 text-sm">🧠Problem-Solving</span>
               </div>
@@ -104,3 +104,5 @@ export default function AnimatedModalDemo() {
     </div>
   );
 }
+
+

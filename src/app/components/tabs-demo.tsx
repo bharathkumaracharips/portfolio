@@ -47,6 +47,7 @@ export function TabsDemo() {
       content: (
         <div className="w-full overflow-hidden relative h-full rounded-2xl p-10 text-xl md:text-4xl font-bold text-white bg-gradient-to-br from-black to-violet-900 tracking-wide">
           <p>project 4</p>
+          <h1>COMING SOON</h1>
         </div>
       ),
     },

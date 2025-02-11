@@ -1,4 +1,4 @@
-require('dotenv').config();
+import { useState, useEffect } from "react";
 import type React from "react";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
@@ -7,23 +7,56 @@ import { IconSend } from "@tabler/icons-react";
 import emailjs from "emailjs-com"; // Import emailjs
 
 export default function ContactFormDemo() {
+  const [statusMessage, setStatusMessage] = useState<string | null>(null); // To manage the success or error message
+  const [statusType, setStatusType] = useState<"success" | "error" | "warning" | null>(null); // To manage the type of message
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  }); // Store form data
+  const [isFormValid, setIsFormValid] = useState(false); // Track if form is valid
+  const [loading, setLoading] = useState(false); // Track loading state for preventing duplicate requests
+
+  // Form validation function
+  useEffect(() => {
+    // Check if all fields are filled in
+    const isValid =
+      formData.name.trim() !== "" &&
+      formData.email.trim() !== "" &&
+      formData.subject.trim() !== "" &&
+      formData.message.trim() !== "";
+    setIsFormValid(isValid); // Set form validity based on the fields
+  }, [formData]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Check if form is valid before trying to send
+    if (!isFormValid) {
+      // This will trigger when form is incomplete
+      setStatusMessage("Please fill in all fields.");
+      setStatusType("warning");
+      return; // Don't continue submitting the form
+    }
+
+    setLoading(true); // Set loading to true when the form is being submitted
+
     const form = e.target as HTMLFormElement;
 
-    // Collect form data
-    const formData = new FormData(form);
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const subject = formData.get("subject") as string;
-    const message = formData.get("message") as string;
-
     // Update form data dynamically (hidden fields for emailjs template)
-    form.querySelector('input[name="user_name"]')?.setAttribute("value", name);
-    form.querySelector('input[name="user_email"]')?.setAttribute("value", email);
-    form.querySelector('input[name="subject"]')?.setAttribute("value", subject);
-    form.querySelector('textarea[name="message"]')?.setAttribute("value", message);
+    form.querySelector('input[name="user_name"]')?.setAttribute("value", formData.name);
+    form.querySelector('input[name="user_email"]')?.setAttribute("value", formData.email);
+    form.querySelector('input[name="subject"]')?.setAttribute("value", formData.subject);
+    form.querySelector('textarea[name="message"]')?.setAttribute("value", formData.message);
 
     // Send email using EmailJS
     emailjs
@@ -36,13 +69,18 @@ export default function ContactFormDemo() {
       .then(
         (result) => {
           console.log(result.text); // Log success
-          alert("Your message has been sent successfully!");
+          setStatusMessage("Your message has been sent successfully!");
+          setStatusType("success");
         },
         (error) => {
           console.log(error.text); // Log error
-          alert("Oops! Something went wrong.");
+          setStatusMessage("Oops! Something went wrong.");
+          setStatusType("error");
         }
-      );
+      )
+      .finally(() => {
+        setLoading(false); // Reset loading after the email is sent or failed
+      });
   };
 
   return (
@@ -55,23 +93,46 @@ export default function ContactFormDemo() {
       <form className="my-8" onSubmit={handleSubmit}>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="name">Name</Label>
-          <Input id="name" name="name" placeholder="Your Name" type="text" />
+          <Input
+            id="name"
+            name="name"
+            value={formData.name}
+            placeholder="Your Name"
+            type="text"
+            onChange={handleChange}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="email">Email Address</Label>
-          <Input id="email" name="email" placeholder="you@example.com" type="email" />
+          <Input
+            id="email"
+            name="email"
+            value={formData.email}
+            placeholder="you@example.com"
+            type="email"
+            onChange={handleChange}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-4">
           <Label htmlFor="subject">Subject</Label>
-          <Input id="subject" name="subject" placeholder="Your message subject" type="text" />
+          <Input
+            id="subject"
+            name="subject"
+            value={formData.subject}
+            placeholder="Your message subject"
+            type="text"
+            onChange={handleChange}
+          />
         </LabelInputContainer>
         <LabelInputContainer className="mb-8">
           <Label htmlFor="message">Message</Label>
           <textarea
             id="message"
             name="message"
+            value={formData.message}
             placeholder="Your message here..."
             rows={4}
+            onChange={handleChange}
             className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50 dark:bg-zinc-800 text-black dark:text-white shadow-input dark:shadow-[0px_0px_1px_1px_var(--neutral-700)]"
           />
         </LabelInputContainer>
@@ -79,12 +140,30 @@ export default function ContactFormDemo() {
         <button
           className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
+          disabled={loading || !isFormValid} // Disable the button if the form is not valid or loading is true
         >
-          Send Message
+          {loading ? "Sending..." : "Send Message"}
           <IconSend className="inline-block ml-2 h-4 w-4" />
           <BottomGradient />
         </button>
       </form>
+
+      {/* Conditional rendering for messages */}
+      {statusMessage && (
+        <div
+          className={`mt-4 p-4 text-center rounded-md text-sm ${
+            statusType === "success"
+              ? "bg-green-100 text-green-700"
+              : statusType === "error"
+              ? "bg-red-100 text-red-700"
+              : statusType === "warning"
+              ? "bg-yellow-100 text-yellow-700"
+              : ""
+          }`}
+        >
+          {statusMessage}
+        </div>
+      )}
     </div>
   );
 }
@@ -107,4 +186,3 @@ const LabelInputContainer = ({
 }) => {
   return <div className={cn("flex flex-col space-y-2 w-full", className)}>{children}</div>;
 };
-

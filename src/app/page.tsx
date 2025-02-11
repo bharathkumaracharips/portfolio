@@ -44,6 +44,8 @@ export default function Page() {
       <div className="relative z-9 w-full" id="Contact">
       <LampDemo/>
       </div>
+      <br />
+      <br />
       {/* Floating Dock */}
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[1000]">
         <FloatingDockDemo />

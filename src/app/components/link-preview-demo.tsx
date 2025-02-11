@@ -39,43 +39,43 @@ export function LinkPreviewDemo() {
         area="md:[grid-area:2/2/3/3] xl:[grid-area:2/2/3/3]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
         title={<LinkPreview url="https://github.com/" className="font-bold">Git/Github</LinkPreview>}
-        description="Blockchain interoperability platform."
+        description="A platform for version control and collaboration on software development projects."
       />
       <GridItem
         area="md:[grid-area:2/3/3/4] xl:[grid-area:2/3/3/4]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title={<LinkPreview url="" className="font-bold">Data Structures and Algorithms</LinkPreview>}
-        description="Blockchain interoperability platform."
+        title={<LinkPreview url="https://www.ieee.org/" className="font-bold">Data Structures and Algorithms</LinkPreview>}
+        description="Fundamentals of organizing and processing data efficiently, key to computer science."
       />
       <GridItem
         area="md:[grid-area:2/4/3/5] xl:[grid-area:2/4/3/5]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title={<LinkPreview url="" className="font-bold">Block Chain Technology</LinkPreview>}
-        description="Blockchain interoperability platform."
+        title={<LinkPreview url="https://bitcoin.org/en/" className="font-bold">Block Chain Technology</LinkPreview>}
+        description="A decentralized digital ledger system revolutionizing industries with secure and transparent transactions."
       />
       <GridItem
         area="md:[grid-area:3/1/4/2] xl:[grid-area:3/1/4/2]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title={<LinkPreview url="" className="font-bold">Ethical Hacking</LinkPreview>}
-        description="Blockchain interoperability platform."
+        title={<LinkPreview url="https://cve.mitre.org/" className="font-bold">Ethical Hacking</LinkPreview>}
+        description="The practice of testing and securing systems by identifying vulnerabilities in an ethical manner."
       />
       <GridItem
         area="md:[grid-area:3/2/4/3] xl:[grid-area:3/2/4/3]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title={<LinkPreview url="" className="font-bold">Networking</LinkPreview>}
-        description="Blockchain interoperability platform."
+        title={<LinkPreview url="https://www.icann.org/" className="font-bold">Networking</LinkPreview>}
+        description="Connecting computers and devices to share resources and communicate within local or global networks."
       />
       <GridItem
         area="md:[grid-area:3/3/4/4] xl:[grid-area:3/3/4/4]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title={<LinkPreview url="" className="font-bold">Web Development</LinkPreview>}
-        description="Blockchain interoperability platform."
+        title={<LinkPreview url="https://www.w3.org/" className="font-bold">Web Development</LinkPreview>}
+        description="Creating, designing, and maintaining websites and web applications using various programming technologies."
       />
       <GridItem
         area="md:[grid-area:3/4/4/5] xl:[grid-area:3/4/4/5]"
         icon={<Search className="h-4 w-4 text-black dark:text-neutral-400" />}
-        title={<LinkPreview url="" className="font-bold">DBMS</LinkPreview>}
-        description="Blockchain interoperability platform."
+        title={<LinkPreview url="https://www.mysql.com/" className="font-bold">DBMS</LinkPreview>}
+        description="A system for managing databases, storing, retrieving, and manipulating data effectively."
       />
     </ul>
   );

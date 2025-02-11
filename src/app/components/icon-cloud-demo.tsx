@@ -1,43 +1,31 @@
 import { IconCloud } from "@/app/components/ui/icon-cloud"
 
 const slugs = [
-  "typescript",
+ "c",
+  "c++",
+  "solidity",
   "javascript",
-  "dart",
-  "java",
+  "css",
   "react",
-  "flutter",
-  "android",
-  "html5",
-  "css3",
-  "nodedotjs",
-  "express",
-  "nextdotjs",
-  "prisma",
-  "amazonaws",
-  "postgresql",
-  "firebase",
-  "nginx",
-  "vercel",
-  "testinglibrary",
-  "jest",
-  "cypress",
-  "docker",
+  "typescript",
+  "rust",
+  "tailwindcss",
   "git",
-  "jira",
-  "github",
-  "gitlab",
-  "visualstudiocode",
-  "androidstudio",
-  "sonarqube",
-  "figma",
+  "linux",
+  "mongodb",
+  "polkadot",
+  "metasploit",
+  "burpsuite",
+  "wireshark",
+  "kalilinux", 
+  "ubuntu",
 ]
 
 export default function IconCloudDemo() {
   const images = slugs.map((slug) => `https://cdn.simpleicons.org/${slug}/${slug}`)
 
   return (
-    <div className="relative flex size-full max-w-lg items-center justify-center overflow-hidden rounded-lg">
+    <div className="relative flex w-full max-w-xs items-center justify-center bg-[#0c0c0c] overflow-hidden rounded-lg bg-black/[2.96] antialiased bg-grid-white/[1.02] border border-white">
       <IconCloud images={images} />
     </div>
   )

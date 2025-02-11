@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PS BHARATH KUMAR ACHARI",
+  title: "PS BHARATH KUMAR ACHARI portfolio",
   description: "BLOCK CHAIN DEVELOPER",
 };
 

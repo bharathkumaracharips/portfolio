@@ -10,7 +10,7 @@ export function TabsDemo() {
         <div className="w-full mb-[300px] overflow-hidden relative h-full rounded-2xl p-10 text-xl md:text-4xl font-bold text-white bg-gradient-to-br from-black to-violet-900 tracking-wide">
           <p>Block Stamp</p>
           <video className="mt-4  w-full rounded-lg" controls>
-            <source src={"/Block-Stamp.mp4"} type="video/mp4" />
+            <source src={"/project_videos/Block-Stamp.mp4"} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <br /><br />
@@ -24,7 +24,7 @@ export function TabsDemo() {
         <div className="w-full overflow-hidden relative h-full rounded-2xl p-10 text-xl md:text-4xl font-bold text-white bg-gradient-to-br from-black to-violet-900 tracking-wide">
           <p>Block Meet</p>
           <video className="mt-4  w-full rounded-lg" controls>
-            <source src={"/Block-Meet.mp4"} type="video/mp4" />
+            <source src={"/project_videos/Block-Meet.mp4"} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <br /><br />

@@ -41,7 +41,7 @@ export default function AnimatedModalDemo() {
             <div className="flex justify-center items-center">
               <div className="w-full h-[600px] overflow-hidden rounded-lg transition-transform duration-300 hover:scale-105">
                 <object
-                  data="/pdf.pdf"
+                  data="/resume/ps_bharath_kumar_achari.pdf"
                   type="application/pdf"
                   className="w-full h-full rounded-lg"
                 >
@@ -83,7 +83,7 @@ export default function AnimatedModalDemo() {
                 Cancel
               </button>
               <a
-                href="/pdf.pdf"
+                href="/resume/ps_bharath_kumar_achari.pdf"
                 download
                 className="bg-black text-white dark:bg-white dark:text-black text-sm px-2 py-1 rounded-md border border-black w-28 text-center"
               >

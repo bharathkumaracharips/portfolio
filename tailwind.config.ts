@@ -6,16 +6,23 @@ const {
 
 function addVariablesForColors({ addBase, theme }: any) {
   let allColors = flattenColorPalette(theme("colors"));
+
+  // Force dark mode as default
   let newVars = Object.fromEntries(
-    Object.entries(allColors).map(([key, val]) => [`--${key}`, val])
+    Object.entries(allColors).map(([key, val]) => {
+      if (key === "background") return ["--background", "#0a0a0a"]; // Dark mode background
+      if (key === "foreground") return ["--foreground", "#ededed"]; // Light text in dark mode
+      return [`--${key}`, val];
+    })
   );
 
   addBase({
-    ":root": newVars,
+    ":root": newVars, // Apply forced dark mode variables
   });
 }
 
 export default {
+  darkMode: "class", // Enables dark mode via the "dark" class
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",

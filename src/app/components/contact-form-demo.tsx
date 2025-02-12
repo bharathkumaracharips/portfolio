@@ -86,7 +86,7 @@ export default function ContactFormDemo() {
 
   return (
     <div className="max-w-lg w-full mx-auto mt-10 md:mt-16 rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-      <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">Contact Me</h2>
+      {/* <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">Contact Me</h2> */}
       <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
         Have a question or want to get in touch? Send me a message!
       </p>

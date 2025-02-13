@@ -6,9 +6,6 @@ export function BackgroundBeamsWithCollisionDemo() {
   return (
     <BackgroundBeamsWithCollision className="min-h-[800px] bg-inherit md:min-h-[700px] lg:min-h-[900px]">
       <div className="relative z-20 w-full max-w-4xl mx-auto px-4 py-8">
-      <h1 className="absolute top-0 left-0 text-4xl font-bold text-white p-4 border-4 border-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
-        SKILLS
-      </h1>
         <h2 className="text-2xl md:text-4xl lg:text-7xl font-bold text-center text-black dark:text-white font-sans tracking-tight">
           <TabsDemo />
           <br /><br />

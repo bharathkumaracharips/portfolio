@@ -31,12 +31,12 @@ export default function Page() {
       </div>
       
       {/* Animated Modal */}
-      <div className="relative z-[1000] w-full">
+      <div className="relative z-10 w-full">
         <AnimatedModalDemo />
       </div>
 
       {/* Timeline */}
-      <div className="relative z-10 w-full" id="Timeline">
+      <div className="relative z-10  w-full" id="Timeline">
         <TimelineDemo />
       </div>
 

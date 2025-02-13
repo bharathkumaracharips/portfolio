@@ -26,11 +26,11 @@ export default function AnimatedModalDemo() {
           <IconFileCv stroke={1} color="black" />
         </div>
       </button>
-
+      {/* "bg-white dark:bg-neutral-900 */}
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000] mb-[100px]">
-          <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-lg max-w-3xl w-full">
+        <div className="fixed inset-0  bg-opacity-50 flex items-center justify-center z-[1000] mb-[100px] w-full h-screen">
+          <div className="bg-white dark:bg-neutral-900 p-6 rounded-lg shadow-lg max-w-3xl  w-full h-screen fixed">
             <h4 className="text-lg md:text-2xl text-neutral-600 dark:text-neutral-100 font-bold text-center mb-8">
               Had a 
               <span className="px-1 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 dark:border-neutral-700 border border-gray-200">
@@ -45,7 +45,7 @@ export default function AnimatedModalDemo() {
                   type="application/pdf"
                   className="w-full h-full rounded-lg"
                 >
-                  <p>It appears your browser doesn&apo;st support PDFs.
+                  <p>It appears your browser doesn&apos;st support PDFs.
                     <a href="/pdf.pdf" download className="text-blue-500 hover:underline">Download the PDF</a> instead.
                   </p>
                 </object>

@@ -4,7 +4,7 @@ import { GlowingEffect } from "@/app/components/ui/glowing-effect";
 import { LinkPreview } from "@/app/components/ui/link-preview";
 export function LinkPreviewDemo() {
   return (
-    <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:grid-rows-2">
+    <ul className="grid w-fit h-fit grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:grid-rows-2">
       <GridItem
         area="md:[grid-area:1/1/2/2] xl:[grid-area:1/1/2/2]"
         icon={<Box className="h-4 w-4 text-black dark:text-neutral-400" />}

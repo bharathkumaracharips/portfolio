@@ -89,7 +89,7 @@ interface GridItemProps {
   description: React.ReactNode;
 }
 
-const GridItem = ({ area, icon, title, description }: GridItemProps) => {
+const GridItem = ({  icon, title, description }: GridItemProps) => {
   return (
     <li className={`list-none h-full md:h-auto`}>
       <div className="relative h-full rounded-1.5xl border p-2 md:rounded-3xl md:p-3">

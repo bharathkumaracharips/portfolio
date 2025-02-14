@@ -4,7 +4,7 @@ import { TabsDemo } from "./tabs-demo";
 
 export function BackgroundBeamsWithCollisionDemo() {
   return (
-    <BackgroundBeamsWithCollision className="min-h-[800px] bg-inherit md:min-h-[700px] lg:min-h-[900px]">
+    <BackgroundBeamsWithCollision className="min-h-[800px] bg-inherit md:min-h-[700px] lg:min-h-[900px] pb-[100px] mb:pt-[-200px] lg:mt-0">
       <div className="relative z-20 w-full max-w-4xl mx-auto px-4 py-8">
         <h2 className="text-2xl md:text-4xl lg:text-7xl font-bold text-center text-black dark:text-white font-sans tracking-tight">
           <TabsDemo />

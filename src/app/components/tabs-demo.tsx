@@ -10,7 +10,7 @@ export function TabsDemo() {
       content: (
         <div className="w-full relative min-h-[18rem] sm:-mt-24 md:min-h-[40rem] rounded-2xl p-6 md:p-10 text-lg md:text-3xl font-bold text-white bg-gradient-to-br from-black to-violet-900 tracking-wide">
           <p>Block Stamp</p>
-          <video className="mt-4 w-full max-w-full rounded-lg z-10" controls>
+          <video className="mt-4 w-full max-w-full rounded-lg z-10 object-contain pb-0 mb:pb-[-300px]" controls>
             <source src={"/project_videos/Block-Stamp.mp4"} type="video/mp4" />
             Your browser does not support the video tag.
           </video>

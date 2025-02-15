@@ -1,24 +1,24 @@
-import { useState} from "react";
-import type React from "react";
+
+import { useState } from "react";
+import React from "react";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
 import { cn } from "@/app/lib/utils";
 import { IconSend } from "@tabler/icons-react";
-import emailjs from "emailjs-com"; // Import emailjs
+import emailjs from "emailjs-com";
 
 export default function ContactFormDemo() {
-  const [statusMessage, setStatusMessage] = useState<string | null>(null); // To manage the success or error message
-  const [statusType, setStatusType] = useState<"success" | "error" | "warning" | null>(null); // To manage the type of message
+  const [statusMessage, setStatusMessage] = useState(null);
+  const [statusType, setStatusType] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
-  }); // Store form data
-  const [isFormValid, setIsFormValid] = useState(true); // Track if form is valid
-  const [loading, setLoading] = useState(false); // Track loading state for preventing duplicate requests
+  });
+  const [isFormValid, setIsFormValid] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  // Form validation logic
   const validateForm = () => {
     return (
       formData.name.trim() !== "" &&
@@ -28,7 +28,7 @@ export default function ContactFormDemo() {
     );
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -36,63 +36,59 @@ export default function ContactFormDemo() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Check if the form is valid
     const isValid = validateForm();
     setIsFormValid(isValid);
 
     if (!isValid) {
       setStatusMessage("Please fill in all fields.");
       setStatusType("warning");
-      return; // Prevent form submission if it's invalid
+      return;
     }
 
-    setLoading(true); // Set loading to true when the form is being submitted
+    setLoading(true);
 
-    const form = e.target as HTMLFormElement;
+    const form = e.target;
 
-    // Update form data dynamically (hidden fields for emailjs template)
     form.querySelector('input[name="user_name"]')?.setAttribute("value", formData.name);
     form.querySelector('input[name="user_email"]')?.setAttribute("value", formData.email);
     form.querySelector('input[name="subject"]')?.setAttribute("value", formData.subject);
     form.querySelector('textarea[name="message"]')?.setAttribute("value", formData.message);
 
-    // Send email using EmailJS
     emailjs
       .sendForm(
-        "service_o06i9of", // Replace with your EmailJS service ID
-        "template_043yoph", // Replace with your EmailJS template ID
-        form, // Send the form element itself
-        "HaQYq3fmat6ts9EFh" // Replace with your EmailJS user ID
+        "service_o06i9of",
+        "template_043yoph",
+        form,
+        "HaQYq3fmat6ts9EFh"
       )
       .then(
         (result) => {
-          console.log(result.text); // Log success
+          console.log(result.text);
           setStatusMessage("Your message has been sent successfully!");
           setStatusType("success");
         },
         (error) => {
-          console.log(error.text); // Log error
+          console.log(error.text);
           setStatusMessage("Oops! Something went wrong.");
           setStatusType("error");
         }
       )
       .finally(() => {
-        setLoading(false); // Reset loading after the email is sent or failed
+        setLoading(false);
       });
   };
 
   return (
-    <div className="max-w-lg w-full mx-auto mt-10 md:mt-16 rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
-      {/* <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">Contact Me</h2> */}
+    <div className="max-w-lg w-full mx-auto mt-4 md:mt-10 rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black"> {/* Reduced mt-10 to mt-4 */}
       <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
         Have a question or want to get in touch? Send me a message!
       </p>
 
-      <form className="my-8" onSubmit={handleSubmit}>
-        <LabelInputContainer className="mb-4">
+      <form className="my-4" onSubmit={handleSubmit}> {/* Reduced my-8 to my-4 */}
+        <LabelInputContainer className="mb-2"> {/* Reduced mb-4 to mb-2 */}
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
@@ -103,7 +99,7 @@ export default function ContactFormDemo() {
             onChange={handleChange}
           />
         </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
+        <LabelInputContainer className="mb-2"> {/* Reduced mb-4 to mb-2 */}
           <Label htmlFor="email">Email Address</Label>
           <Input
             id="email"
@@ -114,7 +110,7 @@ export default function ContactFormDemo() {
             onChange={handleChange}
           />
         </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
+        <LabelInputContainer className="mb-2"> {/* Reduced mb-4 to mb-2 */}
           <Label htmlFor="subject">Subject</Label>
           <Input
             id="subject"
@@ -125,7 +121,7 @@ export default function ContactFormDemo() {
             onChange={handleChange}
           />
         </LabelInputContainer>
-        <LabelInputContainer className="mb-8">
+        <LabelInputContainer className="mb-4"> {/* Reduced mb-8 to mb-4 */}
           <Label htmlFor="message">Message</Label>
           <textarea
             id="message"
@@ -149,15 +145,13 @@ export default function ContactFormDemo() {
         </button>
       </form>
 
-      {/* Conditional rendering for error/warning messages */}
       {!isFormValid && (
         <div className="mt-4 p-4 text-center rounded-md text-sm bg-yellow-100 text-yellow-700">
           Please fill in all fields.
         </div>
       )}
 
-      {/* Conditional rendering for status messages */}
-     {statusMessage?.startsWith("Your") && (
+      {statusMessage?.startsWith("Your") && (
         <div
           className={`mt-4 p-4 text-center rounded-md text-sm ${
             statusType === "success"

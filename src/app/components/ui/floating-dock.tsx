@@ -9,7 +9,7 @@ export const FloatingDock = ({
   desktopClassName,
   mobileClassName,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string ,target:string}[]
+  items: { title: string; icon: React.ReactNode; href: string, target: string }[]
   desktopClassName?: string
   mobileClassName?: string
 }) => {
@@ -25,10 +25,15 @@ const FloatingDockMobile = ({
   items,
   className,
 }: {
-  items: { title: string; icon: React.ReactNode; href: string,target:string }[]
+  items: { title: string; icon: React.ReactNode; href: string, target: string }[]
   className?: string
 }) => {
   const [open, setOpen] = useState(false)
+
+  const handleClick = () => {
+    setOpen(false)
+  }
+
   return (
     <div className={cn("relative block md:hidden", className)}>
       <AnimatePresence>
@@ -52,10 +57,10 @@ const FloatingDockMobile = ({
                 transition={{ delay: (items.length - 1 - idx) * 0.05 }}
               >
                 <Link
-                  href={item.target}
-                  key={item.title}
-                  target={item?.target }
-                  className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center"
+                  href={item.href}
+                  target={item.target}
+                  onClick={handleClick}
+                  className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                   <div className="h-4 w-4">{item.icon}</div>
                 </Link>
@@ -66,7 +71,7 @@ const FloatingDockMobile = ({
       </AnimatePresence>
       <button
         onClick={() => setOpen(!open)}
-        className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-800 flex items-center justify-center"
+        className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-800 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
       >
         <IconLayoutNavbarCollapse className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
       </button>

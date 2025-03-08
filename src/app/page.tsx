@@ -9,7 +9,6 @@ import { TimelineDemo } from "./components/timeline-demo";
 import { SpotlightNewDemo } from "./components/spotlight-new-demo";
 import { LampDemo } from "./components/lamp-demo";
 import { BackgroundBeamsWithCollisionDemo } from "./components/background-beams-with-collision-demo";
-
 export default function Page() {
   useEffect(() => {
     document.documentElement.classList.add("dark"); // Forces dark mode
@@ -40,6 +39,8 @@ export default function Page() {
         <TimelineDemo />
       </div>
 
+    
+    
       {/* Infinite Moving Cards */}
       <div className="relative z-10 w-full" id="Certificates">
         <InfiniteMovingCardsDemo />

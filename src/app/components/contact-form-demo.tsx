@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import React from "react";
 import { Label } from "@/app/components/ui/label";
@@ -82,13 +81,16 @@ export default function ContactFormDemo() {
   };
 
   return (
-    <div className="max-w-lg w-full mx-auto mt-4 md:mt-10 rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black"> {/* Reduced mt-10 to mt-4 */}
-      <p className="text-neutral-600 text-sm max-w-sm mt-2 dark:text-neutral-300">
+    <div className="max-w-lg w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white/80 dark:bg-black/80 backdrop-blur-sm">
+      <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 bg-gradient-to-b from-black to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+        Get in Touch
+      </h2>
+      <p className="text-neutral-600 text-sm max-w-sm mx-auto text-center mb-4 dark:text-neutral-300">
         Have a question or want to get in touch? Send me a message!
       </p>
 
-      <form className="my-4" onSubmit={handleSubmit}> {/* Reduced my-8 to my-4 */}
-        <LabelInputContainer className="mb-2"> {/* Reduced mb-4 to mb-2 */}
+      <form className="space-y-3" onSubmit={handleSubmit}>
+        <LabelInputContainer>
           <Label htmlFor="name">Name</Label>
           <Input
             id="name"
@@ -99,7 +101,7 @@ export default function ContactFormDemo() {
             onChange={handleChange}
           />
         </LabelInputContainer>
-        <LabelInputContainer className="mb-2"> {/* Reduced mb-4 to mb-2 */}
+        <LabelInputContainer>
           <Label htmlFor="email">Email Address</Label>
           <Input
             id="email"
@@ -110,7 +112,7 @@ export default function ContactFormDemo() {
             onChange={handleChange}
           />
         </LabelInputContainer>
-        <LabelInputContainer className="mb-2"> {/* Reduced mb-4 to mb-2 */}
+        <LabelInputContainer>
           <Label htmlFor="subject">Subject</Label>
           <Input
             id="subject"
@@ -121,7 +123,7 @@ export default function ContactFormDemo() {
             onChange={handleChange}
           />
         </LabelInputContainer>
-        <LabelInputContainer className="mb-4"> {/* Reduced mb-8 to mb-4 */}
+        <LabelInputContainer>
           <Label htmlFor="message">Message</Label>
           <textarea
             id="message"
@@ -130,7 +132,7 @@ export default function ContactFormDemo() {
             placeholder="Your message here..."
             rows={4}
             onChange={handleChange}
-            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50 dark:bg-zinc-800 text-black dark:text-white shadow-input dark:shadow-[0px_0px_1px_1px_var(--neutral-700)]"
+            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50/80 dark:bg-zinc-800/80 text-black dark:text-white shadow-input dark:shadow-[0px_0px_1px_1px_var(--neutral-700)]"
           />
         </LabelInputContainer>
 
@@ -143,29 +145,29 @@ export default function ContactFormDemo() {
           <IconSend className="inline-block ml-2 h-4 w-4" />
           <BottomGradient />
         </button>
+
+        {!isFormValid && (
+          <div className="mt-4 p-3 text-center rounded-md text-sm bg-yellow-100/80 text-yellow-700 backdrop-blur-sm">
+            Please fill in all fields.
+          </div>
+        )}
+
+        {statusMessage?.startsWith("Your") && (
+          <div
+            className={`mt-4 p-3 text-center rounded-md text-sm backdrop-blur-sm ${
+              statusType === "success"
+                ? "bg-green-100/80 text-green-700"
+                : statusType === "error"
+                ? "bg-red-100/80 text-red-700"
+                : statusType === "warning"
+                ? "bg-yellow-100/80 text-yellow-700"
+                : ""
+            }`}
+          >
+            {statusMessage}
+          </div>
+        )}
       </form>
-
-      {!isFormValid && (
-        <div className="mt-4 p-4 text-center rounded-md text-sm bg-yellow-100 text-yellow-700">
-          Please fill in all fields.
-        </div>
-      )}
-
-      {statusMessage?.startsWith("Your") && (
-        <div
-          className={`mt-4 p-4 text-center rounded-md text-sm ${
-            statusType === "success"
-              ? "bg-green-100 text-green-700"
-              : statusType === "error"
-              ? "bg-red-100 text-red-700"
-              : statusType === "warning"
-              ? "bg-yellow-100 text-yellow-700"
-              : ""
-          }`}
-        >
-          {statusMessage}
-        </div>
-      )}
     </div>
   );
 }

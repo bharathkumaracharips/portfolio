@@ -17,11 +17,10 @@ type SpotlightProps = {
 export const Spotlight = ({
   gradientFirst = "radial-gradient(68.54% 68.72% at 55.02% 31.46%, hsla(210, 100%, 85%, .08) 0, hsla(210, 100%, 55%, .02) 50%, hsla(210, 100%, 45%, 0) 80%)",
   gradientSecond = "radial-gradient(50% 50% at 50% 50%, hsla(210, 100%, 85%, .06) 0, hsla(210, 100%, 55%, .02) 80%, transparent 100%)",
-  gradientThird = "radial-gradient(50% 50% at 50% 50%, hsla(210, 100%, 85%, .04) 0, hsla(210, 100%, 45%, .02) 80%, transparent 100%)",
-  translateY = 0,
+  gradientThird = "radial-gradient(50% 50% at 50% 50%, hsla(210, 100%, 85%, .04) 0, hsla(210, 100%, 45%, .02) 80%, transparent 100%)", 
   width = 1200,
   height = 400,
-  smallWidth = 200,
+  // smallWidth = 200,
   duration = 10,
   xOffset = 100,
 }: SpotlightProps = {}) => {
@@ -40,7 +39,7 @@ export const Spotlight = ({
 
   const adjustedWidth = isMobile ? width * 0.6 : width;
   const adjustedHeight = isMobile ? height * 0.8 : height;
-  const adjustedSmallWidth = isMobile ? smallWidth * 0.6 : smallWidth;
+  // const adjustedSmallWidth = isMobile ? smallWidth * 0.6 : smallWidth;
   const adjustedXOffset = isMobile ? xOffset * 0.5 : xOffset;
 
   const rotateX = useTransform(mouseY, [0, height], [-10, 10]);

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react";
-import { LayersIcon } from "lucide-react";
 import { IconFileCv, IconDownload, IconExternalLink } from '@tabler/icons-react';
 
 export default function AnimatedModalDemo() {

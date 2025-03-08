@@ -26,7 +26,7 @@ export default function Page() {
       </div>
       
       <div className="relative z-10 w-full" id="Projects">
-        <BackgroundBeamsWithCollisionDemo />
+        <BackgroundBeamsWithCollisionDemo />   
       </div>
       
       {/* Animated Modal */}

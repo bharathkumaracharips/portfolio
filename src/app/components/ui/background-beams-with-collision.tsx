@@ -26,7 +26,7 @@ export const BackgroundBeamsWithCollision = ({
     <div
       ref={parentRef}
       className={cn(
-        "h-96 md:h-[40rem] bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-950 dark:to-neutral-800 relative flex items-center w-full justify-center overflow-hidden",
+        "h-96 md:h-[35rem] bg-gradient-to-b from-white to-neutral-100 dark:from-neutral-950 dark:to-neutral-800 relative flex items-start w-full justify-center overflow-hidden pt-10",
         className
       )}
     >
@@ -39,7 +39,10 @@ export const BackgroundBeamsWithCollision = ({
         />
       ))}
 
-      {children}
+      <div className="relative z-50 flex flex-col items-center px-5 -mt-32 md:-mt-20 w-full">
+        {children}
+      </div>
+      
       <div
         ref={containerRef}
         className="absolute bottom-0 bg-neutral-100 w-full inset-x-0 pointer-events-none"
@@ -69,7 +72,7 @@ const CollisionMechanism = React.forwardRef<
       repeatDelay?: number;
     };
   }
->(({ parentRef, containerRef, beamOptions = {} }) => {
+>(({ containerRef, parentRef, beamOptions = {} }) => {
   const beamRef = useRef<HTMLDivElement>(null!);
   const [collision, setCollision] = useState<{ detected: boolean; coordinates: { x: number; y: number } | null }>({
     detected: false,

@@ -16,7 +16,7 @@ export function LampDemo() {
           duration: 0.8,
           ease: "easeInOut",
         }}
-        className="bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-3xl font-semibold tracking-tight text-transparent sm:text-4xl md:text-5xl lg:text-6xl"
+        className="bg-gradient-to-br from-white to-gray-300 py-4 bg-clip-text text-center text-3xl font-semibold tracking-tight text-transparent sm:text-4xl md:text-5xl lg:text-6xl"
       >
         Contact Me
       </motion.h1>

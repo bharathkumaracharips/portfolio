@@ -5,7 +5,7 @@ import { Timeline } from "@/app/components/ui/timeline";
 export function TimelineDemo() {
   const data = [
     {
-      title: "2025",
+      title: "Early 2025",
       content: (
         <div>
           <p className="text-neutral-800 dark:text-neutral-200 text-xs md:text-sm font-normal mb-8">

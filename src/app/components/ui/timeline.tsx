@@ -22,11 +22,11 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start 10%", "end 50%"],
+    offset: ["start 0%", "85% 100%"],
   })
 
-  const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height])
-  const opacityTransform = useTransform(scrollYProgress, [0, 0.1], [0, 1])
+  const heightTransform = useTransform(scrollYProgress, [0, 0.85], [0, height * 0.92])
+  const opacityTransform = useTransform(scrollYProgress, [0, 0.1], [0, 0.8])
 
   return (
     <div className="w-full font-sans px-4 md:px-10" ref={containerRef}>
@@ -68,7 +68,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
               height: heightTransform,
               opacity: opacityTransform,
             }}
-            className="absolute inset-x-0 top-0 w-full bg-gradient-to-b from-blue-500 to-purple-500"
+            className="absolute inset-x-0 top-0 w-full bg-gradient-to-b from-blue-500/80 via-purple-500/60 to-purple-500/40"
           />
         </div>
       </div>

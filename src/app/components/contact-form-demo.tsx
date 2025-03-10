@@ -58,10 +58,10 @@ export default function ContactFormDemo() {
 
     emailjs
       .sendForm(
-        "service_o06i9of",
-        "template_043yoph",
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
         form,
-        "HaQYq3fmat6ts9EFh"
+        process.env.NEXT_PUBLIC_EMAILJS_USER_ID!
       )
       .then(
         (result) => {

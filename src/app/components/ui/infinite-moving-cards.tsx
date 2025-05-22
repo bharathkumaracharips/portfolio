@@ -276,28 +276,28 @@ export const InfiniteMovingCards = ({
   }, [direction]);
 
   // Memoized function to set animation speed
-  const getSpeed = useCallback(() => {
-    if (containerRef.current) {
-      const speedMap = {
-        fast: "20s",
-        normal: "40s",
-        slow: "80s",
-      };
-      containerRef.current.style.setProperty(
-        "--animation-duration",
-        speedMap[speed] || "40s"
-      );
-    }
-  }, [speed]);
+  // const getSpeed = useCallback(() => {
+  //   if (containerRef.current) {
+  //     const speedMap = {
+  //       fast: "20s",
+  //       normal: "40s",
+  //       slow: "80s",
+  //     };
+  //     containerRef.current.style.setProperty(
+  //       "--animation-duration",
+  //       speedMap[speed] || "40s"
+  //     );
+  //   }
+  // }, [speed]);
 
   // Memoize addAnimation function to prevent unnecessary re-renders
   const addAnimation = useCallback(() => {
     if (containerRef.current && scrollerRef.current) {
       const scrollerContent = Array.from(scrollerRef.current.children);
 
-      let contentWidth = 0;
+      // let contentWidth = 0;
       scrollerContent.forEach((item) => {
-        contentWidth += item.clientWidth + 32; // Add item width and gap (assuming gap-8 which is 32px)
+        // contentWidth += item.clientWidth + 32; // Add item width and gap (assuming gap-8 which is 32px)
         const duplicatedItem = item.cloneNode(true);
         scrollerRef.current?.appendChild(duplicatedItem);
       });

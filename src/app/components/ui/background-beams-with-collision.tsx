@@ -72,7 +72,7 @@ interface CollisionMechanismProps {
 }
 
 const CollisionMechanism = React.forwardRef<HTMLDivElement, CollisionMechanismProps>(
-  ({ containerRef, parentRef, beamOptions = {} }, ref) => {
+  ({ containerRef, parentRef, beamOptions = {} }, ) => {
     const beamRef = useRef<HTMLDivElement>(null!);
     const [collision, setCollision] = useState<{ detected: boolean; coordinates: { x: number; y: number } | null }>({
       detected: false,

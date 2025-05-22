@@ -49,13 +49,23 @@ export function TabsDemo() {
       ),
     },
     {
-      title: "Project 3",
-      value: "project 3",
+      title: "SaveServes",
+      value: "SaveServes",
       content: (
         <div className="w-full relative min-h-[24rem] sm:min-h-[25rem] md:min-h-[35rem] lg:min-h-[40rem] rounded-2xl p-2 sm:p-6 md:p-10 text-sm sm:text-lg md:text-3xl font-bold text-white bg-gradient-to-br from-black to-violet-900 tracking-wide flex flex-col items-center">
-          <p className="mb-2 sm:mb-4 text-center">Project 3</p>
-          <div className="flex items-center justify-center h-full">
-            <h1>COMING SOON</h1>
+          <p className="mb-2 sm:mb-4 text-center">SaveServes</p>
+          <div className="flex-1 relative w-full flex items-center justify-center pt-2 sm:pt-0">
+            <div className="w-full h-full absolute inset-0 flex items-center justify-center">
+              <video 
+                className="w-full h-full rounded-lg object-contain" 
+                controls
+                controlsList="nodownload"
+                preload="metadata"
+              >
+                <source src={"/project_videos/SaveServes.mov"} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
         </div>
       ),

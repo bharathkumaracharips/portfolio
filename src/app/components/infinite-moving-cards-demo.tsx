@@ -1,5 +1,5 @@
 import { InfiniteMovingCards } from "@/app/components/ui/infinite-moving-cards"; 
-import { EVMCard, EthicalHackingCard, CloudPractitionerCard, InternshipCard } from "@/app/components/3d-card-demo"; // Adjust the import path
+import { EVMCard, EthicalHackingCard, CloudPractitionerCard, InternshipCard, RustCard } from "@/app/components/3d-card-demo"; // Adjust the import path
 
 export function InfiniteMovingCardsDemo() {
   const items: { type: "component"; component: React.ReactNode }[] = [
@@ -7,6 +7,7 @@ export function InfiniteMovingCardsDemo() {
     { type: "component", component: <EthicalHackingCard /> },
     { type: "component", component: <CloudPractitionerCard /> },
     { type: "component", component: <InternshipCard /> },
+    { type: "component", component: <RustCard /> },
   ];
 
   return (

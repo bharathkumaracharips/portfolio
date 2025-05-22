@@ -294,16 +294,27 @@ export const InfiniteMovingCards = ({
   const addAnimation = useCallback(() => {
     if (containerRef.current && scrollerRef.current) {
       const scrollerContent = Array.from(scrollerRef.current.children);
+
+      let contentWidth = 0;
       scrollerContent.forEach((item) => {
+        contentWidth += item.clientWidth + 32; // Add item width and gap (assuming gap-8 which is 32px)
         const duplicatedItem = item.cloneNode(true);
         scrollerRef.current?.appendChild(duplicatedItem);
       });
 
+      const totalWidth = scrollerRef.current.scrollWidth;
+      const duration = totalWidth / (speed === "fast" ? 100 : speed === "normal" ? 50 : 25); // Adjust factor based on speed for desired effect
+
+      containerRef.current.style.setProperty(
+        "--animation-duration",
+        `${duration}s`
+      );
+
       getDirection();
-      getSpeed();
+      // getSpeed(); // No longer need the fixed speed map
       setStart(true);
     }
-  }, [getDirection, getSpeed]); // Now includes dependencies
+  }, [getDirection, speed]); // Added speed to dependencies
 
   useEffect(() => {
     addAnimation();

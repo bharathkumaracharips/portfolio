@@ -62,7 +62,7 @@ export function TabsDemo() {
                 controlsList="nodownload"
                 preload="metadata"
               >
-                <source src={"/project_videos/SaveServes.mov"} type="video/mp4" />
+                <source src={"/project_videos/SaveServes.mp4"} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>

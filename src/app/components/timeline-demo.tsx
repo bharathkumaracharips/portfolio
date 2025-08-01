@@ -5,6 +5,35 @@ import { Timeline } from "@/app/components/ui/timeline";
 export function TimelineDemo() {
   const data = [
     {
+      title: "March 2025 - Present",
+      content: (
+        <div>
+          <p className="text-neutral-800 dark:text-neutral-200 text-xs md:text-sm font-normal mb-4">
+            🚀 <strong>Blockchain Developer Internship</strong> at Caerulean Bytechains Pvt Ltd
+          </p>
+          <div className="mb-8">
+            <div className="flex gap-2 items-center text-neutral-700 dark:text-neutral-300 text-xs md:text-sm mb-2">
+              ✅ Develop and maintain blockchain runtime and infrastructure using Rust and Substrate 🦀⛓️
+            </div>
+            <div className="flex gap-2 items-center text-neutral-700 dark:text-neutral-300 text-xs md:text-sm mb-2">
+              ✅ Implement and optimize consensus mechanisms for efficient blockchain operations 🔄
+            </div>
+            <div className="flex gap-2 items-center text-neutral-700 dark:text-neutral-300 text-xs md:text-sm mb-2">
+              ✅ Deploy and execute dApps on the blockchain to enhance user experience 📱
+            </div>
+            <div className="flex gap-2 items-center text-neutral-700 dark:text-neutral-300 text-xs md:text-sm">
+              📍 Hyderabad, Telangana, India (On-site)
+            </div>
+          </div>
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+            <p className="text-blue-800 dark:text-blue-300 text-xs md:text-sm font-medium">
+              🎯 Currently working on cutting-edge blockchain technology with Rust and Substrate framework
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "Early 2025",
       content: (
         <div>

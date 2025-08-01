@@ -1,237 +1,6 @@
-// import { cn } from "@/app/lib/utils";
-// import React, { useEffect, useState } from "react";
-
-// // Define types for items
-// type TextItem = {
-//   type: "text";
-//   quote: string;
-//   name: string;
-//   title: string;
-// };
-
-// type ComponentItem = {
-//   type: "component";
-//   component: React.ReactNode;
-// };
-
-// type Item = TextItem | ComponentItem;
-
-// export const InfiniteMovingCards = ({
-//   items,
-//   direction = "left",
-//   speed = "fast",
-//   pauseOnHover = true,
-//   className,
-// }: {
-//   items: Item[];
-//   direction?: "left" | "right";
-//   speed?: "fast" | "normal" | "slow";
-//   pauseOnHover?: boolean;
-//   className?: string;
-// }) => {
-//   const containerRef = React.useRef<HTMLDivElement>(null);
-//   const scrollerRef = React.useRef<HTMLUListElement>(null);
-//   const [start, setStart] = useState(false);
-
-//   useEffect(() => {
-//     addAnimation();
-//   }, []);
-
-//   function addAnimation() {
-//     if (containerRef.current && scrollerRef.current) {
-//       const scrollerContent = Array.from(scrollerRef.current.children);
-//       scrollerContent.forEach((item) => {
-//         const duplicatedItem = item.cloneNode(true);
-//         scrollerRef.current?.appendChild(duplicatedItem);
-//       });
-
-//       getDirection();
-//       getSpeed();
-//       setStart(true);
-//     }
-//   }
-
-//   const getDirection = () => {
-//     if (containerRef.current) {
-//       containerRef.current.style.setProperty(
-//         "--animation-direction",
-//         direction === "left" ? "forwards" : "reverse"
-//       );
-//     }
-//   };
-
-//   const getSpeed = () => {
-//     if (containerRef.current) {
-//       const speedMap = {
-//         fast: "20s",
-//         normal: "40s",
-//         slow: "80s",
-//       };
-//       containerRef.current.style.setProperty(
-//         "--animation-duration",
-//         speedMap[speed] || "40s"
-//       );
-//     }
-//   };
-
-//   return (
-//     <div
-//       ref={containerRef}
-//       className={cn(
-//         "relative z-20 max-w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
-//         className
-//       )}
-//     >
-//       <ul
-//         ref={scrollerRef}
-//         className={cn(
-//           "flex w-max gap-8 py-4 flex-nowrap",
-//           start && "animate-scroll",
-//           pauseOnHover && "hover:[animation-play-state:paused]"
-//         )}
-//       >
-//         {items.map((item, idx) => (
-//           <li key={idx} className="w-[30rem] flex-shrink-0">
-//             {item.type === "text" ? (
-//               <blockquote>
-//                 <span className="text-sm text-gray-100">{item.quote}</span>
-//                 <div className="mt-2">
-//                   <span className="text-sm text-gray-400">{item.name}</span>
-//                   <span className="text-sm text-gray-400">{item.title}</span>
-//                 </div>
-//               </blockquote>
-//             ) : (
-//               <div className="w-full">{item.component}</div>
-//             )}
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// };
-
-//2nd
-
-
-// import { cn } from "@/app/lib/utils";
-// import React, { useEffect, useState, useCallback } from "react";
-
-// // Define types for items
-// type TextItem = {
-//   type: "text";
-//   quote: string;
-//   name: string;
-//   title: string;
-// };
-
-// type ComponentItem = {
-//   type: "component";
-//   component: React.ReactNode;
-// };
-
-// type Item = TextItem | ComponentItem;
-
-// export const InfiniteMovingCards = ({
-//   items,
-//   direction = "left",
-//   speed = "fast",
-//   pauseOnHover = true,
-//   className,
-// }: {
-//   items: Item[];
-//   direction?: "left" | "right";
-//   speed?: "fast" | "normal" | "slow";
-//   pauseOnHover?: boolean;
-//   className?: string;
-// }) => {
-//   const containerRef = React.useRef<HTMLDivElement>(null);
-//   const scrollerRef = React.useRef<HTMLUListElement>(null);
-//   const [start, setStart] = useState(false);
-
-//   // Memoize addAnimation function to prevent unnecessary re-renders
-//   const addAnimation = useCallback(() => {
-//     if (containerRef.current && scrollerRef.current) {
-//       const scrollerContent = Array.from(scrollerRef.current.children);
-//       scrollerContent.forEach((item) => {
-//         const duplicatedItem = item.cloneNode(true);
-//         scrollerRef.current?.appendChild(duplicatedItem);
-//       });
-
-//       getDirection();
-//       getSpeed();
-//       setStart(true);
-//     }
-//   }, [direction, speed]);
-
-//   useEffect(() => {
-//     addAnimation();
-//   }, [addAnimation]); // Include addAnimation in the dependency array
-
-//   const getDirection = () => {
-//     if (containerRef.current) {
-//       containerRef.current.style.setProperty(
-//         "--animation-direction",
-//         direction === "left" ? "forwards" : "reverse"
-//       );
-//     }
-//   };
-
-//   const getSpeed = () => {
-//     if (containerRef.current) {
-//       const speedMap = {
-//         fast: "20s",
-//         normal: "40s",
-//         slow: "80s",
-//       };
-//       containerRef.current.style.setProperty(
-//         "--animation-duration",
-//         speedMap[speed] || "40s"
-//       );
-//     }
-//   };
-
-//   return (
-//     <div
-//       ref={containerRef}
-//       className={cn(
-//         "relative z-20 max-w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
-//         className
-//       )}
-//     >
-//       <ul
-//         ref={scrollerRef}
-//         className={cn(
-//           "flex w-max gap-8 py-4 flex-nowrap",
-//           start && "animate-scroll",
-//           pauseOnHover && "hover:[animation-play-state:paused]"
-//         )}
-//       >
-//         {items.map((item, idx) => (
-//           <li key={idx} className="w-[30rem] flex-shrink-0">
-//             {item.type === "text" ? (
-//               <blockquote>
-//                 <span className="text-sm text-gray-100">{item.quote}</span>
-//                 <div className="mt-2">
-//                   <span className="text-sm text-gray-400">{item.name}</span>
-//                   <span className="text-sm text-gray-400">{item.title}</span>
-//                 </div>
-//               </blockquote>
-//             ) : (
-//               <div className="w-full">{item.component}</div>
-//             )}
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// };
-
-
-//3rd
-
-
 import { cn } from "@/app/lib/utils";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 
 // Define types for items
 type TextItem = {
@@ -265,6 +34,13 @@ export const InfiniteMovingCards = ({
   const scrollerRef = React.useRef<HTMLUListElement>(null);
   const [start, setStart] = useState(false);
 
+  // Memoized speed mapping for better performance
+  const speedMap = useMemo(() => ({
+    fast: 120,
+    normal: 60,
+    slow: 30,
+  }), []);
+
   // Memoized function to set animation direction
   const getDirection = useCallback(() => {
     if (containerRef.current) {
@@ -275,35 +51,21 @@ export const InfiniteMovingCards = ({
     }
   }, [direction]);
 
-  // Memoized function to set animation speed
-  // const getSpeed = useCallback(() => {
-  //   if (containerRef.current) {
-  //     const speedMap = {
-  //       fast: "20s",
-  //       normal: "40s",
-  //       slow: "80s",
-  //     };
-  //     containerRef.current.style.setProperty(
-  //       "--animation-duration",
-  //       speedMap[speed] || "40s"
-  //     );
-  //   }
-  // }, [speed]);
-
-  // Memoize addAnimation function to prevent unnecessary re-renders
+  // Optimized addAnimation function with better performance
   const addAnimation = useCallback(() => {
     if (containerRef.current && scrollerRef.current) {
       const scrollerContent = Array.from(scrollerRef.current.children);
 
-      // let contentWidth = 0;
-      scrollerContent.forEach((item) => {
-        // contentWidth += item.clientWidth + 32; // Add item width and gap (assuming gap-8 which is 32px)
-        const duplicatedItem = item.cloneNode(true);
-        scrollerRef.current?.appendChild(duplicatedItem);
-      });
+      // Only duplicate if not already duplicated
+      if (scrollerContent.length === items.length) {
+        scrollerContent.forEach((item) => {
+          const duplicatedItem = item.cloneNode(true);
+          scrollerRef.current?.appendChild(duplicatedItem);
+        });
+      }
 
-      const totalWidth = scrollerRef.current.scrollWidth;
-      const duration = totalWidth / (speed === "fast" ? 100 : speed === "normal" ? 50 : 25); // Adjust factor based on speed for desired effect
+      const totalWidth = scrollerRef.current.scrollWidth / 2; // Divide by 2 since we duplicated
+      const duration = totalWidth / speedMap[speed];
 
       containerRef.current.style.setProperty(
         "--animation-duration",
@@ -311,45 +73,74 @@ export const InfiniteMovingCards = ({
       );
 
       getDirection();
-      // getSpeed(); // No longer need the fixed speed map
       setStart(true);
     }
-  }, [getDirection, speed]); // Added speed to dependencies
+  }, [getDirection, speed, speedMap, items.length]);
 
   useEffect(() => {
     addAnimation();
-  }, [addAnimation]); // Include addAnimation in the dependency array
+  }, [addAnimation]);
 
   return (
     <div
       ref={containerRef}
       className={cn(
-        "relative z-20 max-w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
+        "relative z-20 max-w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]",
         className
       )}
     >
       <ul
         ref={scrollerRef}
         className={cn(
-          "flex w-max gap-8 py-4 flex-nowrap",
+          "flex w-max gap-6 md:gap-8 py-4 flex-nowrap will-change-transform",
           start && "animate-scroll",
           pauseOnHover && "hover:[animation-play-state:paused]"
         )}
+        style={{
+          animationTimingFunction: "linear",
+          animationIterationCount: "infinite",
+        }}
       >
         {items.map((item, idx) => (
-          <li key={idx} className="w-[30rem] flex-shrink-0">
+          <motion.li 
+            key={idx} 
+            className="w-[280px] sm:w-[320px] md:w-[400px] lg:w-[480px] flex-shrink-0"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              duration: 0.5, 
+              delay: idx * 0.1,
+              ease: "easeOut"
+            }}
+            whileHover={{ 
+              scale: 1.02,
+              transition: { duration: 0.2 }
+            }}
+          >
             {item.type === "text" ? (
-              <blockquote>
-                <span className="text-sm text-gray-100">{item.quote}</span>
-                <div className="mt-2">
-                  <span className="text-sm text-gray-400">{item.name}</span>
-                  <span className="text-sm text-gray-400">{item.title}</span>
+              <motion.blockquote 
+                className="glass-effect dark:glass-effect p-6 rounded-xl border border-white/10 dark:border-white/5 backdrop-blur-sm hover:backdrop-blur-md transition-all duration-300 hover:shadow-lg hover:border-white/20 dark:hover:border-white/10"
+                whileHover={{ y: -5 }}
+                transition={{ duration: 0.2 }}
+              >
+                <span className="text-sm md:text-base text-gray-100 leading-relaxed block mb-4">
+                  &ldquo;{item.quote}&rdquo;
+                </span>
+                <div className="flex flex-col gap-1">
+                  <span className="text-sm font-semibold text-gray-200">{item.name}</span>
+                  <span className="text-xs text-gray-400">{item.title}</span>
                 </div>
-              </blockquote>
+              </motion.blockquote>
             ) : (
-              <div className="w-full">{item.component}</div>
+              <motion.div 
+                className="w-full h-full"
+                whileHover={{ y: -5 }}
+                transition={{ duration: 0.2 }}
+              >
+                {item.component}
+              </motion.div>
             )}
-          </li>
+          </motion.li>
         ))}
       </ul>
     </div>

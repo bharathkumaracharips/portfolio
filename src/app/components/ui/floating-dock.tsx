@@ -1,5 +1,5 @@
 import { cn } from "@/app/lib/utils"
-import { IconLayoutNavbarCollapse } from "@tabler/icons-react"
+import { IconMenu2 } from "@tabler/icons-react"
 import { AnimatePresence, type MotionValue, motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import Link from "next/link"
 import { useRef, useState } from "react"
@@ -30,50 +30,47 @@ const FloatingDockMobile = ({
 }) => {
   const [open, setOpen] = useState(false)
 
-  const handleClick = () => {
-    setOpen(false)
-  }
-
   return (
     <div className={cn("relative block md:hidden", className)}>
       <AnimatePresence>
         {open && (
-          <motion.div layoutId="nav" className="absolute bottom-full mb-2 inset-x-0 flex flex-col gap-2">
+          <motion.div 
+            className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 flex flex-col gap-2"
+            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+            transition={{ duration: 0.15 }}
+          >
             {items.map((item, idx) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                exit={{
-                  opacity: 0,
-                  y: 10,
-                  transition: {
-                    delay: idx * 0.05,
-                  },
-                }}
-                transition={{ delay: (items.length - 1 - idx) * 0.05 }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ delay: idx * 0.05 }}
               >
                 <Link
                   href={item.href}
                   target={item.target}
-                  onClick={handleClick}
-                  className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-900 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2 bg-black/80 backdrop-blur-sm border border-gray-800 rounded-lg text-white hover:bg-black/90 transition-colors"
                 >
-                  <div className="h-4 w-4">{item.icon}</div>
+                  <div className="h-4 w-4 text-gray-300">
+                    {item.icon}
+                  </div>
+                  <span className="text-sm font-medium">{item.title}</span>
                 </Link>
               </motion.div>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
+      
       <button
         onClick={() => setOpen(!open)}
-        className="h-10 w-10 rounded-full bg-gray-50 dark:bg-neutral-800 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors"
+        className="h-12 w-12 rounded-full bg-black/80 backdrop-blur-sm border border-gray-800 flex items-center justify-center text-white hover:bg-black/90 transition-colors"
       >
-        <IconLayoutNavbarCollapse className="h-5 w-5 text-neutral-500 dark:text-neutral-400" />
+        <IconMenu2 className="h-5 w-5" />
       </button>
     </div>
   )
@@ -87,33 +84,20 @@ const FloatingDockDesktop = ({
   className?: string
 }) => {
   const mouseX = useMotionValue(Number.POSITIVE_INFINITY)
+  
   return (
-    <motion.div
+    <div
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Number.POSITIVE_INFINITY)}
       className={cn(
-        "mx-auto hidden md:flex h-fit gap-4 items-end rounded-full bg-white dark:bg-neutral-900 px-4 pb-3 relative overflow-hidden",
+        "mx-auto hidden md:flex h-16 gap-2 items-center px-4 bg-black/80 backdrop-blur-sm border border-gray-800 rounded-full",
         className,
       )}
     >
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 opacity-75"
-        animate={{
-          rotate: [0, 360],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Number.POSITIVE_INFINITY,
-          ease: "linear",
-        }}
-      />
-      <motion.div className="absolute inset-0.5 rounded-full bg-white dark:bg-neutral-900" />
-      <div className="relative flex gap-4 items-end">
-        {items.map((item) => (
-          <IconContainer mouseX={mouseX} key={item.title} {...item} />
-        ))}
-      </div>
-    </motion.div>
+      {items.map((item) => (
+        <IconContainer mouseX={mouseX} key={item.title} {...item} />
+      ))}
+    </div>
   )
 }
 
@@ -123,7 +107,6 @@ function IconContainer({
   icon,
   href,
   target
-  
 }: {
   mouseX: MotionValue
   title: string
@@ -138,54 +121,34 @@ function IconContainer({
     return val - bounds.x - bounds.width / 2
   })
 
-  const widthTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40])
-  const heightTransform = useTransform(distance, [-150, 0, 150], [40, 80, 40])
-
-  const widthTransformIcon = useTransform(distance, [-150, 0, 150], [20, 40, 20])
-  const heightTransformIcon = useTransform(distance, [-150, 0, 150], [20, 40, 20])
+  const widthTransform = useTransform(distance, [-150, 0, 150], [40, 56, 40])
+  const heightTransform = useTransform(distance, [-150, 0, 150], [40, 56, 40])
 
   const width = useSpring(widthTransform, { mass: 0.1, stiffness: 150, damping: 12 })
   const height = useSpring(heightTransform, { mass: 0.1, stiffness: 150, damping: 12 })
 
-  const widthIcon = useSpring(widthTransformIcon, { mass: 0.1, stiffness: 150, damping: 12 })
-  const heightIcon = useSpring(heightTransformIcon, { mass: 0.1, stiffness: 150, damping: 12 })
-
   const [hovered, setHovered] = useState(false)
 
   return (
-    <Link href={href} target={target}  >
+    <Link href={href} target={target}>
       <motion.div
         ref={ref}
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="aspect-square rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center relative overflow-hidden"
+        className="aspect-square rounded-full bg-gray-900 hover:bg-gray-800 flex items-center justify-center relative transition-colors duration-200"
       >
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 opacity-75"
-          style={{
-            scale: useTransform(distance, [-150, 0, 150], [1, 1.2, 1]),
-            rotate: useTransform(distance, [-150, 0, 150], [-45, 0, 45]),
-          }}
-        />
-        <motion.div
-          className="absolute inset-0.5 rounded-full bg-white dark:bg-neutral-800 flex items-center justify-center"
-          style={{ scale: useTransform(distance, [-150, 0, 150], [0.95, 1, 0.95]) }}
-        >
-          <motion.div
-            style={{ width: widthIcon, height: heightIcon }}
-            className="flex items-center justify-center text-gray-700 dark:text-gray-300"
-          >
-            {icon}
-          </motion.div>
-        </motion.div>
+        <div className="h-5 w-5 text-gray-300 hover:text-white transition-colors">
+          {icon}
+        </div>
+        
         <AnimatePresence>
           {hovered && (
             <motion.div
-              initial={{ opacity: 0, y: 10, x: "-50%" }}
+              initial={{ opacity: 0, y: 8, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
-              exit={{ opacity: 0, y: 2, x: "-50%" }}
-              className="px-2 py-0.5 whitespace-pre rounded-md bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 text-gray-700 dark:text-gray-300 absolute left-1/2 -translate-x-1/2 -top-8 w-fit text-xs"
+              exit={{ opacity: 0, y: 4, x: "-50%" }}
+              className="absolute left-1/2 -top-8 px-2 py-1 bg-black text-white text-xs rounded whitespace-nowrap"
             >
               {title}
             </motion.div>

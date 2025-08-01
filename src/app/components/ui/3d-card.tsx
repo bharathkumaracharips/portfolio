@@ -2,7 +2,7 @@
 
 import { cn } from "@/app/lib/utils"
 import type React from "react"
-import { createContext, useState, useContext, useRef, useEffect, useCallback } from "react"
+import { createContext, useState, useContext, useRef, useEffect, useCallback, useMemo } from "react"
 
 const MouseEnterContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined>(undefined)
 
@@ -17,28 +17,52 @@ export const CardContainer = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isMouseEntered, setIsMouseEntered] = useState(false)
+  const animationFrameRef = useRef<number>()
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Throttled mouse move handler for better performance
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return
-    const { left, top, width, height } = containerRef.current.getBoundingClientRect()
-    const x = (e.clientX - left - width / 2) / 25
-    const y = (e.clientY - top - height / 2) / 25
-    containerRef.current.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`
-  }
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+    
+    animationFrameRef.current = requestAnimationFrame(() => {
+      if (!containerRef.current) return
+      const { left, top, width, height } = containerRef.current.getBoundingClientRect()
+      const x = (e.clientX - left - width / 2) / 30 // Reduced sensitivity for smoother effect
+      const y = (e.clientY - top - height / 2) / 30
+      containerRef.current.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`
+    })
+  }, [])
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = useCallback(() => {
     setIsMouseEntered(true)
-    if (!containerRef.current) return
-  }
+  }, [])
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
     if (!containerRef.current) return
     setIsMouseEntered(false)
     containerRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`
-  }
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+  }, [])
+
+  // Cleanup animation frame on unmount
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [])
+
+  const contextValue = useMemo(() => [isMouseEntered, setIsMouseEntered] as const, [isMouseEntered])
 
   return (
-    <MouseEnterContext.Provider value={[isMouseEntered, setIsMouseEntered]}>
+    <MouseEnterContext.Provider value={contextValue}>
       <div
         className={cn("py-8 sm:py-12 md:py-16 flex items-center justify-center", containerClassName)}
         style={{
@@ -50,7 +74,7 @@ export const CardContainer = ({
           onMouseEnter={handleMouseEnter}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className={cn("flex items-center justify-center relative transition-all duration-200 ease-linear", className)}
+          className={cn("flex items-center justify-center relative transition-all duration-300 ease-out will-change-transform", className)}
           style={{
             transformStyle: "preserve-3d",
           }}
@@ -100,24 +124,44 @@ export const CardItem = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null)
   const [isMouseEntered] = useMouseEnter()
+  const animationFrameRef = useRef<number>()
 
-  // useCallback to memoize the handleAnimations function
+  // Memoize transform values for better performance
+  const transforms = useMemo(() => ({
+    active: `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`,
+    inactive: `translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`
+  }), [translateX, translateY, translateZ, rotateX, rotateY, rotateZ])
+
+  // Optimized animation handler with RAF
   const handleAnimations = useCallback(() => {
     if (!ref.current) return
-    if (isMouseEntered) {
-      ref.current.style.transform = `translateX(${translateX}px) translateY(${translateY}px) translateZ(${translateZ}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) rotateZ(${rotateZ}deg)`
-    } else {
-      ref.current.style.transform = `translateX(0px) translateY(0px) translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg)`
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
     }
-  }, [isMouseEntered, translateX, translateY, translateZ, rotateX, rotateY, rotateZ])
+    
+    animationFrameRef.current = requestAnimationFrame(() => {
+      if (!ref.current) return
+      ref.current.style.transform = isMouseEntered ? transforms.active : transforms.inactive
+    })
+  }, [isMouseEntered, transforms])
 
-  // useEffect for triggering animations when isMouseEntered changes
   useEffect(() => {
     handleAnimations()
-  }, [isMouseEntered, handleAnimations])
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+    }
+  }, [handleAnimations])
 
   return (
-    <Tag ref={ref} className={cn("w-fit transition duration-200 ease-linear", className)} {...rest}>
+    <Tag 
+      ref={ref} 
+      className={cn("w-fit transition-transform duration-300 ease-out will-change-transform", className)} 
+      {...rest}
+    >
       {children}
     </Tag>
   )

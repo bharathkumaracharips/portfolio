@@ -1,22 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
 import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
 import { cn } from "@/app/lib/utils";
 import { IconSend } from "@tabler/icons-react";
-import emailjs from "emailjs-com";
+import { motion, AnimatePresence } from "framer-motion";
+import emailjs from "@emailjs/browser";
 
 export default function ContactFormDemo() {
-  const [statusMessage, setStatusMessage] = useState(null);
-  const [statusType, setStatusType] = useState(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [statusType, setStatusType] = useState<'success' | 'error' | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
-  const [isFormValid, setIsFormValid] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  // Initialize EmailJS
+  useEffect(() => {
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    console.log('EmailJS Public Key:', publicKey); // Debug log
+    if (publicKey && publicKey !== 'your_public_key_here') {
+      emailjs.init(publicKey);
+      console.log('EmailJS initialized successfully'); // Debug log
+    } else {
+      console.error('EmailJS public key not found or not configured');
+    }
+  }, []);
 
   const validateForm = () => {
     return (
@@ -27,71 +39,89 @@ export default function ContactFormDemo() {
     );
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    
+    // Clear status message when user starts typing
+    if (statusMessage) {
+      setStatusMessage(null);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const isValid = validateForm();
-    setIsFormValid(isValid);
-
-    if (!isValid) {
+    if (!validateForm()) {
       setStatusMessage("Please fill in all fields.");
-      setStatusType("warning");
+      setStatusType("error");
+      return;
+    }
+
+    // Check if EmailJS environment variables are configured
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+
+    if (!serviceId || !templateId || !publicKey || 
+        serviceId === 'your_service_id_here' || 
+        templateId === 'your_template_id_here' || 
+        publicKey === 'your_public_key_here') {
+      setStatusMessage("Email service not configured. Please contact the administrator.");
+      setStatusType("error");
       return;
     }
 
     setLoading(true);
+    setStatusMessage(null);
 
-    const form = e.target;
+    try {
+      // Send email using the modern EmailJS API
+      const templateParams = {
+        user_name: formData.name,
+        user_email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        to_email: 'bharathkumaracharips@gmail.com', // Replace with your actual email
+      };
 
-    form.querySelector('input[name="user_name"]')?.setAttribute("value", formData.name);
-    form.querySelector('input[name="user_email"]')?.setAttribute("value", formData.email);
-    form.querySelector('input[name="subject"]')?.setAttribute("value", formData.subject);
-    form.querySelector('textarea[name="message"]')?.setAttribute("value", formData.message);
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
 
-    emailjs
-      .sendForm(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        form,
-        process.env.NEXT_PUBLIC_EMAILJS_USER_ID!
-      )
-      .then(
-        (result) => {
-          console.log(result.text);
-          setStatusMessage("Your message has been sent successfully!");
-          setStatusType("success");
-        },
-        (error) => {
-          console.log(error.text);
-          setStatusMessage("Oops! Something went wrong.");
-          setStatusType("error");
-        }
-      )
-      .finally(() => {
-        setLoading(false);
-      });
+      setStatusMessage("Message sent successfully!");
+      setStatusType("success");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      console.error('Email send error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      if (errorMessage.includes('public key') || errorMessage.includes('init')) {
+        setStatusMessage("Email configuration error. Please check public key.");
+      } else if (errorMessage.includes('service') || errorMessage.includes('template')) {
+        setStatusMessage("Email service configuration error. Please contact support.");
+      } else {
+        setStatusMessage("Failed to send message. Please try again later.");
+      }
+      setStatusType("error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-lg w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white/80 dark:bg-black/80 backdrop-blur-sm">
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 bg-gradient-to-b from-black to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
+    <div className="max-w-md w-full mx-auto bg-black/40 backdrop-blur-sm border border-gray-800 rounded-xl p-6">
+      <h2 className="text-xl font-semibold text-white text-center mb-1">
         Get in Touch
       </h2>
-      <p className="text-neutral-600 text-sm max-w-sm mx-auto text-center mb-4 dark:text-neutral-300">
-        Have a question or want to get in touch? Send me a message!
+      <p className="text-gray-400 text-sm text-center mb-6">
+        Have a question or want to collaborate? I'd love to hear from you!
       </p>
 
-      <form className="space-y-3" onSubmit={handleSubmit}>
-        <LabelInputContainer>
-          <Label htmlFor="name">Name</Label>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        <div>
+          <Label htmlFor="name" className="text-gray-300 text-sm">Name</Label>
           <Input
             id="name"
             name="name"
@@ -99,10 +129,12 @@ export default function ContactFormDemo() {
             placeholder="Your Name"
             type="text"
             onChange={handleChange}
+            className="mt-1 bg-gray-900/50 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
-        </LabelInputContainer>
-        <LabelInputContainer>
-          <Label htmlFor="email">Email Address</Label>
+        </div>
+
+        <div>
+          <Label htmlFor="email" className="text-gray-300 text-sm">Email</Label>
           <Input
             id="email"
             name="email"
@@ -110,83 +142,70 @@ export default function ContactFormDemo() {
             placeholder="you@example.com"
             type="email"
             onChange={handleChange}
+            className="mt-1 bg-gray-900/50 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
-        </LabelInputContainer>
-        <LabelInputContainer>
-          <Label htmlFor="subject">Subject</Label>
+        </div>
+
+        <div>
+          <Label htmlFor="subject" className="text-gray-300 text-sm">Subject</Label>
           <Input
             id="subject"
             name="subject"
             value={formData.subject}
-            placeholder="Your message subject"
+            placeholder="What's this about?"
             type="text"
             onChange={handleChange}
+            className="mt-1 bg-gray-900/50 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           />
-        </LabelInputContainer>
-        <LabelInputContainer>
-          <Label htmlFor="message">Message</Label>
+        </div>
+
+        <div>
+          <Label htmlFor="message" className="text-gray-300 text-sm">Message</Label>
           <textarea
             id="message"
             name="message"
             value={formData.message}
-            placeholder="Your message here..."
+            placeholder="Tell me more about your project..."
             rows={4}
             onChange={handleChange}
-            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 bg-gray-50/80 dark:bg-zinc-800/80 text-black dark:text-white shadow-input dark:shadow-[0px_0px_1px_1px_var(--neutral-700)]"
+            className="mt-1 w-full px-3 py-2 bg-gray-900/50 border border-gray-700 rounded-md text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none resize-none"
           />
-        </LabelInputContainer>
+        </div>
 
         <button
-          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
           type="submit"
           disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 text-white py-2.5 px-4 rounded-md font-medium transition-colors duration-200 flex items-center justify-center gap-2"
         >
-          {loading ? "Sending..." : "Send Message"}
-          <IconSend className="inline-block ml-2 h-4 w-4" />
-          <BottomGradient />
+          {loading ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              Send Message
+              <IconSend className="h-4 w-4" />
+            </>
+          )}
         </button>
 
-        {!isFormValid && (
-          <div className="mt-4 p-3 text-center rounded-md text-sm bg-yellow-100/80 text-yellow-700 backdrop-blur-sm">
-            Please fill in all fields.
-          </div>
-        )}
-
-        {statusMessage?.startsWith("Your") && (
-          <div
-            className={`mt-4 p-3 text-center rounded-md text-sm backdrop-blur-sm ${
-              statusType === "success"
-                ? "bg-green-100/80 text-green-700"
-                : statusType === "error"
-                ? "bg-red-100/80 text-red-700"
-                : statusType === "warning"
-                ? "bg-yellow-100/80 text-yellow-700"
-                : ""
-            }`}
-          >
-            {statusMessage}
-          </div>
-        )}
+        <AnimatePresence>
+          {statusMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className={cn(
+                "text-center text-sm py-2 px-3 rounded-md",
+                statusType === "success" ? "text-green-400 bg-green-900/20" : "text-red-400 bg-red-900/20"
+              )}
+            >
+              {statusMessage}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </form>
     </div>
   );
 }
-
-const BottomGradient = () => {
-  return (
-    <>
-      <span className="group-hover/btn:opacity-100 block transition duration-500 opacity-0 absolute h-px w-full -bottom-px inset-x-0 bg-gradient-to-r from-transparent via-cyan-500 to-transparent" />
-      <span className="group-hover/btn:opacity-100 blur-sm block transition duration-500 opacity-0 absolute h-px w-1/2 mx-auto -bottom-px inset-x-10 bg-gradient-to-r from-transparent via-indigo-500 to-transparent" />
-    </>
-  );
-};
-
-const LabelInputContainer = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  return <div className={cn("flex flex-col space-y-2 w-full", className)}>{children}</div>;
-};

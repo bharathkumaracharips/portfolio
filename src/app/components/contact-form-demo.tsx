@@ -45,7 +45,7 @@ export default function ContactFormDemo() {
       ...prevData,
       [name]: value,
     }));
-    
+
     // Clear status message when user starts typing
     if (statusMessage) {
       setStatusMessage(null);
@@ -66,10 +66,10 @@ export default function ContactFormDemo() {
     const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
     const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
-    if (!serviceId || !templateId || !publicKey || 
-        serviceId === 'your_service_id_here' || 
-        templateId === 'your_template_id_here' || 
-        publicKey === 'your_public_key_here') {
+    if (!serviceId || !templateId || !publicKey ||
+      serviceId === 'your_service_id_here' ||
+      templateId === 'your_template_id_here' ||
+      publicKey === 'your_public_key_here') {
       setStatusMessage("Email service not configured. Please contact the administrator.");
       setStatusType("error");
       return;
@@ -96,7 +96,7 @@ export default function ContactFormDemo() {
     } catch (error) {
       console.error('Email send error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
+
       if (errorMessage.includes('public key') || errorMessage.includes('init')) {
         setStatusMessage("Email configuration error. Please check public key.");
       } else if (errorMessage.includes('service') || errorMessage.includes('template')) {
@@ -116,7 +116,7 @@ export default function ContactFormDemo() {
         Get in Touch
       </h2>
       <p className="text-gray-400 text-sm text-center mb-6">
-        Have a question or want to collaborate? I'd love to hear from you!
+        Have a question or want to collaborate? I&apos;d love to hear from you!
       </p>
 
       <form className="space-y-4" onSubmit={handleSubmit}>

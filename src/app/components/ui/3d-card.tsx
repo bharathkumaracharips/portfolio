@@ -4,7 +4,7 @@ import { cn } from "@/app/lib/utils"
 import type React from "react"
 import { createContext, useState, useContext, useRef, useEffect, useCallback, useMemo } from "react"
 
-const MouseEnterContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined>(undefined)
+const MouseEnterContext = createContext<readonly [boolean, React.Dispatch<React.SetStateAction<boolean>>] | undefined>(undefined)
 
 export const CardContainer = ({
   children,
@@ -17,16 +17,16 @@ export const CardContainer = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isMouseEntered, setIsMouseEntered] = useState(false)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
 
   // Throttled mouse move handler for better performance
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return
-    
+
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
     }
-    
+
     animationFrameRef.current = requestAnimationFrame(() => {
       if (!containerRef.current) return
       const { left, top, width, height } = containerRef.current.getBoundingClientRect()
@@ -44,7 +44,7 @@ export const CardContainer = ({
     if (!containerRef.current) return
     setIsMouseEntered(false)
     containerRef.current.style.transform = `rotateY(0deg) rotateX(0deg)`
-    
+
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
     }
@@ -124,7 +124,7 @@ export const CardItem = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null)
   const [isMouseEntered] = useMouseEnter()
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
 
   // Memoize transform values for better performance
   const transforms = useMemo(() => ({
@@ -135,11 +135,11 @@ export const CardItem = ({
   // Optimized animation handler with RAF
   const handleAnimations = useCallback(() => {
     if (!ref.current) return
-    
+
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
     }
-    
+
     animationFrameRef.current = requestAnimationFrame(() => {
       if (!ref.current) return
       ref.current.style.transform = isMouseEntered ? transforms.active : transforms.inactive
@@ -148,7 +148,7 @@ export const CardItem = ({
 
   useEffect(() => {
     handleAnimations()
-    
+
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current)
@@ -157,9 +157,9 @@ export const CardItem = ({
   }, [handleAnimations])
 
   return (
-    <Tag 
-      ref={ref} 
-      className={cn("w-fit transition-transform duration-300 ease-out will-change-transform", className)} 
+    <Tag
+      ref={ref}
+      className={cn("w-fit transition-transform duration-300 ease-out will-change-transform", className)}
       {...rest}
     >
       {children}

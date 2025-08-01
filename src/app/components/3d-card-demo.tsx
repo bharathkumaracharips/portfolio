@@ -1,5 +1,5 @@
 import { CardBody, CardContainer, CardItem } from "@/app/components/ui/3d-card";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { motion } from "framer-motion";
 import alchemyImage from './media/alchemy certificate.png';
 import EthicalHacking from "./media/EthicalHacking.png";
@@ -27,7 +27,7 @@ const CertificateCard = ({
 }: { 
   title: string; 
   description: string; 
-  image: any; 
+  image: StaticImageData; 
   alt: string; 
 }) => (
   <motion.div

@@ -385,6 +385,8 @@ export function WorkMerkleDiscoveryCanvas({
     const treeWorld = new THREE.Group();
     scene.add(treeWorld);
 
+    const interactiveMeshes: THREE.Mesh[] = [];
+
     // 5A. LEVEL 0: MERKLE ROOT NODE (y = 3.6)
     const rootPos = new THREE.Vector3(0, 3.6, 0);
     const rootGroup = new THREE.Group();
@@ -487,7 +489,6 @@ export function WorkMerkleDiscoveryCanvas({
     }
 
     const category3DItems: Category3DItem[] = [];
-    const interactiveMeshes: THREE.Mesh[] = [];
 
     const categoryChassisGeo = createBeveledBox(2.4, 1.5, 0.5, 0.12);
     const projectChassisGeo = createBeveledBox(2.0, 1.25, 0.35, 0.1);

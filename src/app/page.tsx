@@ -2,6 +2,7 @@ import { ProtocolNarrative } from "@/components/narrative/ProtocolNarrative";
 import { ExperienceBlockchainSection } from "@/components/experience/ExperienceBlockchainSection";
 import { WorkProjectsSection } from "@/components/projects/WorkProjectsSection";
 import { TeachingSection } from "@/components/teaching/TeachingSection";
+import { ServicesSection } from "@/components/services/ServicesSection";
 
 export default function Home() {
   return (
@@ -10,7 +11,9 @@ export default function Home() {
       <ExperienceBlockchainSection />
       <WorkProjectsSection />
       <TeachingSection />
+      <ServicesSection />
     </main>
   );
 }
+
 

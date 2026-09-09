@@ -1,0 +1,621 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pitch: #050505;
+  --color-sand: #F5F5F2;
+  --color-sand-card: #EFEFEA;
+  --color-sand-border: #E2E2DC;
+  --color-subtle: #888888;
+  --color-border-dark: #1e1e20;
+  --color-border-subtle: #141416;
+  --color-cyan-accent: #61E7FF;
+  --color-cyan-dim: #15363e;
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), SFMono-Regular, Menlo, monospace;
+}
+
+@layer base {
+  :root {
+    --background: #050505;
+    --foreground: #F5F5F2;
+    --pitch: #050505;
+    --sand: #F5F5F2;
+    --sand-card: #EFEFEA;
+    --sand-border: #E2E2DC;
+    --subtle: #888888;
+    --border-dark: #1e1e20;
+    --border-subtle: #141416;
+    --cyan-accent: #61E7FF;
+    --cyan-dim: #15363e;
+  }
+
+  body {
+    background-color: #050505;
+    color: #F5F5F2;
+    font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: #61E7FF;
+    color: #050505;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+
+/* ============================================
+   TECHNICAL GRID & BACKGROUND SYSTEMS
+   ============================================ */
+.bg-tech-grid {
+  background-size: 60px 60px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 240, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 240, 255, 0.04) 1px, transparent 1px);
+  animation: gridShift 20s linear infinite;
+}
+
+@keyframes gridShift {
+  0% { background-position: 0 0; }
+  100% { background-position: 60px 60px; }
+}
+
+.bg-radial-glow {
+  background: radial-gradient(ellipse at 30% 20%, rgba(0, 240, 255, 0.10) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(138, 43, 226, 0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 50%, rgba(0, 255, 157, 0.04) 0%, transparent 70%);
+  animation: glowPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Scanline overlay */
+.scanline-overlay::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================
+   GLASS MORPHISM
+   ============================================ */
+.bg-glass {
+  background: rgba(15, 18, 28, 0.80);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(0, 240, 255, 0.08);
+}
+
+.bg-glass-card {
+  background: linear-gradient(135deg, rgba(15, 18, 28, 0.85) 0%, rgba(20, 25, 38, 0.60) 100%);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================
+   TEXT GRADIENTS
+   ============================================ */
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #ffffff 0%, #00f0ff 60%, #00c8d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-emerald {
+  background: linear-gradient(135deg, #ffffff 0%, #00ff9d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-violet {
+  background: linear-gradient(135deg, #ffffff 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-fire {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffcd3c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated shimmer text */
+.text-shimmer {
+  background: linear-gradient(90deg, #e2e8f0 0%, #00f0ff 30%, #ffffff 50%, #00ff9d 70%, #e2e8f0 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerText 4s linear infinite;
+}
+
+@keyframes shimmerText {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* ============================================
+   GLOW EFFECTS
+   ============================================ */
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 60px rgba(0, 240, 255, 0.1);
+}
+
+.glow-cyan-intense {
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.5), 0 0 80px rgba(0, 240, 255, 0.2), 0 0 120px rgba(0, 240, 255, 0.1);
+}
+
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.3), 0 0 60px rgba(0, 255, 157, 0.1);
+}
+
+.glow-violet {
+  box-shadow: 0 0 20px rgba(138, 43, 226, 0.3), 0 0 60px rgba(138, 43, 226, 0.1);
+}
+
+/* ============================================
+   BORDER BEAM / ANIMATED BORDER
+   ============================================ */
+.border-beam {
+  position: relative;
+  overflow: hidden;
+}
+
+.border-beam::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  background-size: 300% 100%;
+  animation: borderBeam 3s linear infinite;
+}
+
+@keyframes borderBeam {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================
+   DATA STREAM / MATRIX RAIN EFFECT
+   ============================================ */
+.data-stream {
+  position: relative;
+  overflow: hidden;
+}
+
+.data-stream::before {
+  content: '';
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 200%;
+  background: linear-gradient(transparent 0%, rgba(0, 240, 255, 0.03) 50%, transparent 100%);
+  animation: dataStream 3s linear infinite;
+}
+
+@keyframes dataStream {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(50%); }
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #08090d; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #00f0ff, #8a2be2);
+  border-radius: 2px;
+}
+
+/* ============================================
+   HERO TEXT CURSOR BLINK
+   ============================================ */
+.cursor-blink::after {
+  content: '|';
+  color: #00f0ff;
+  animation: cursorBlink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ============================================
+   NODE PING RINGS
+   ============================================ */
+@keyframes nodePing {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+.animate-node-ping {
+  animation: nodePing 2s cubic-bezier(0,0,0.2,1) infinite;
+}
+
+/* ============================================
+   SECTION REVEAL ANIMATIONS (CSS fallback)
+   ============================================ */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-50px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ============================================
+   PARTICLE FIELD
+   ============================================ */
+@keyframes floatParticle {
+  0%, 100% { transform: translateY(0px) translateX(0px); opacity: 0.3; }
+  25% { transform: translateY(-20px) translateX(10px); opacity: 0.8; }
+  50% { transform: translateY(-10px) translateX(-5px); opacity: 0.5; }
+  75% { transform: translateY(-25px) translateX(15px); opacity: 0.9; }
+}
+
+/* ============================================
+   COUNTER/NUMBER ANIMATION
+   ============================================ */
+.animate-count {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   CARD HOVER LIFT
+   ============================================ */
+.card-hover-lift {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-8px) scale(1.01);
+}
+
+/* ============================================
+   MAGNETIC BUTTON EFFECT
+   ============================================ */
+.btn-magnetic {
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================
+   GLITCH EFFECT
+   ============================================ */
+@keyframes glitch1 {
+  0%, 95%, 100% { clip-path: none; transform: none; }
+  96% { clip-path: polygon(0 15%, 100% 15%, 100% 25%, 0 25%); transform: translate(-3px, 0); color: #00f0ff; }
+  97% { clip-path: polygon(0 55%, 100% 55%, 100% 65%, 0 65%); transform: translate(3px, 0); color: #ff0080; }
+  98% { clip-path: polygon(0 40%, 100% 40%, 100% 50%, 0 50%); transform: translate(-1px, 0); }
+  99% { clip-path: none; transform: none; }
+}
+
+.text-glitch {
+  animation: glitch1 8s steps(1) infinite;
+}
+
+/* ============================================
+   SCAN BEAM
+   ============================================ */
+@keyframes scanBeam {
+  0% { top: -4px; }
+  100% { top: 100%; }
+}
+
+.scan-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f0ff, transparent);
+  box-shadow: 0 0 10px #00f0ff, 0 0 30px rgba(0,240,255,0.3);
+  animation: scanBeam 4s linear infinite;
+}
+
+/* ============================================
+   TYPING TEXT 
+   ============================================ */
+@keyframes typeIn {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+/* ============================================
+   STAGGERED GRID REVEAL
+   ============================================ */
+.stagger-child:nth-child(1) { animation-delay: 0.1s; }
+.stagger-child:nth-child(2) { animation-delay: 0.2s; }
+.stagger-child:nth-child(3) { animation-delay: 0.3s; }
+.stagger-child:nth-child(4) { animation-delay: 0.4s; }
+.stagger-child:nth-child(5) { animation-delay: 0.5s; }
+.stagger-child:nth-child(6) { animation-delay: 0.6s; }
+
+/* ============================================
+   FLOW PIPELINE ANIMATION
+   ============================================ */
+@keyframes flowDot {
+  0% { left: -8px; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { left: 100%; opacity: 0; }
+}
+
+.flow-dot {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00f0ff;
+  box-shadow: 0 0 8px #00f0ff;
+  animation: flowDot 2s linear infinite;
+}
+
+/* ============================================
+   METRIC BAR FILL ANIMATION
+   ============================================ */
+@keyframes fillBar {
+  from { width: 0%; }
+  to { width: var(--target-width); }
+}
+
+.metric-bar-fill {
+  animation: fillBar 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ============================================
+   AMBIENT ORB ANIMATION
+   ============================================ */
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.1); }
+  66% { transform: translate(-20px, 15px) scale(0.9); }
+}
+
+.ambient-orb {
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orbFloat 10s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ============================================
+   TICK/HEARTBEAT
+   ============================================ */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.animate-heartbeat {
+  animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   NEON FLICKER
+   ============================================ */
+@keyframes neonFlicker {
+  0%, 95%, 100% { text-shadow: 0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff; }
+  96% { text-shadow: none; }
+  97% { text-shadow: 0 0 7px #00f0ff, 0 0 10px #00f0ff; }
+  98% { text-shadow: none; }
+}
+
+.neon-text {
+  color: #00f0ff;
+  text-shadow: 0 0 7px #00f0ff, 0 0 10px #00f0ff, 0 0 21px #00f0ff;
+  animation: neonFlicker 6s steps(1) infinite;
+}
+
+/* ============================================
+   PROGRESS RING ANIMATION
+   ============================================ */
+@keyframes progressRing {
+  from { stroke-dashoffset: 220; }
+  to { stroke-dashoffset: 0; }
+}
+
+.progress-ring-animate {
+  animation: progressRing 1.5s ease forwards;
+}
+
+/* ============================================
+   WAVEFORM ANIMATION
+   ============================================ */
+@keyframes wave1 { 0%, 100% { height: 8px; } 50% { height: 32px; } }
+@keyframes wave2 { 0%, 100% { height: 16px; } 50% { height: 48px; } }
+@keyframes wave3 { 0%, 100% { height: 24px; } 50% { height: 16px; } }
+
+.wave-bar:nth-child(1) { animation: wave1 0.8s ease infinite; }
+.wave-bar:nth-child(2) { animation: wave2 0.8s ease infinite 0.1s; }
+.wave-bar:nth-child(3) { animation: wave1 0.8s ease infinite 0.2s; }
+.wave-bar:nth-child(4) { animation: wave3 0.8s ease infinite 0.3s; }
+.wave-bar:nth-child(5) { animation: wave2 0.8s ease infinite 0.4s; }
+
+/* ============================================
+   CBC CHAIN VISUALIZER — 3D & CHAIN EFFECTS
+   ============================================ */
+
+/* 3D perspective container */
+.cbc-3d-scene {
+  perspective: 900px;
+  perspective-origin: center center;
+}
+
+/* Block cube — preserve-3d wrapper */
+.cbc-block-cube {
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+/* Chain link pulse */
+@keyframes chainLinkPulse {
+  0%, 100% { box-shadow: 0 0 0px rgba(0,240,255,0); }
+  50% { box-shadow: 0 0 30px rgba(0,240,255,0.6), 0 0 60px rgba(0,240,255,0.2); }
+}
+
+.cbc-chain-glow {
+  animation: chainLinkPulse 2.5s ease-in-out infinite;
+}
+
+/* BLS beam convergence */
+@keyframes blsBeamIn {
+  0% { stroke-dashoffset: 200; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 0.4; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+.bls-beam {
+  stroke-dasharray: 200;
+  animation: blsBeamIn 1.2s ease-in-out infinite;
+}
+
+/* Vortex spin for DCF */
+@keyframes vortexCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes vortexCCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.vortex-cw  { animation: vortexCW  8s linear infinite; }
+.vortex-ccw { animation: vortexCCW 5s linear infinite; }
+
+/* Validator hex ring rotation */
+@keyframes hexRingCW {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes hexRingCCW {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(-360deg); }
+}
+
+.hex-ring-cw  { animation: hexRingCW  20s linear infinite; }
+.hex-ring-ccw { animation: hexRingCCW 14s linear infinite; }
+
+/* TX packet stream */
+@keyframes txPacketSlide {
+  0%   { transform: translateX(-80px); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(520px); opacity: 0; }
+}
+
+.tx-packet {
+  animation: txPacketSlide 2.4s linear infinite;
+}
+
+/* Block materialize — face glow build-up */
+@keyframes blockFaceGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(0,240,255,0.25); }
+  50% { box-shadow: 0 0 50px rgba(0,240,255,0.65), 0 0 100px rgba(0,240,255,0.15); }
+}
+
+.block-face-glow {
+  animation: blockFaceGlow 2.5s ease-in-out infinite;
+}
+
+/* Chain snap — magnetic connection animation */
+@keyframes chainSnap {
+  0%   { transform: translateX(160px) scale(0.7); opacity: 0; }
+  60%  { transform: translateX(-8px) scale(1.04); opacity: 1; }
+  80%  { transform: translateX(3px) scale(0.98); }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+.chain-snap-in {
+  animation: chainSnap 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* PoI Network node pulse */
+@keyframes poiNodePulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(0,240,255,0.2);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(0,240,255,0.6), 0 0 48px rgba(0,240,255,0.15);
+  }
+}
+
+.poi-node-main {
+  animation: poiNodePulse 2s ease-in-out infinite;
+}
+
+/* Mempool incoming packet drop */
+@keyframes mempoolDrop {
+  0%   { transform: translateY(-24px); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(210px); opacity: 0; }
+}
+
+.mempool-drop {
+  animation: mempoolDrop 2.6s linear infinite;
+}
+
+/* Gradient fire text (already covered by .text-gradient-fire but adding explicit) */
+.cbc-amber-glow {
+  color: #ffb800;
+  text-shadow: 0 0 20px rgba(255,184,0,0.5);
+}

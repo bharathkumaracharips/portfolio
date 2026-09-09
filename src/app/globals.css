@@ -33,7 +33,7 @@
     background-color: #050505;
     color: #F5F5F2;
     font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
-    overflow-x: hidden;
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
   }
 

@@ -56,7 +56,7 @@ export function CinematicProtocolExperience() {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.35;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     holder.appendChild(renderer.domElement);
 
     // 2. LIGHTING RIG

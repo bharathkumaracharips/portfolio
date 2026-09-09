@@ -96,22 +96,26 @@ const protocolLayers = [
 ];
 
 export function ProtocolNarrative() {
+  const sectionContainerRef = useRef<HTMLDivElement>(null);
   const [scrollFraction, setScrollFraction] = useState(0);
   const currentFractionRef = useRef(0);
   const targetFractionRef = useRef(0);
 
+  const NARRATIVE_ACTIVE_ZONE = 0.92;
+
   // Jump to specific stage
   const jumpToStage = useCallback((stageIdx: number, subOffset = 0) => {
-    const fraction = (stageIdx + subOffset) / (stages.length - 1);
-    const clamped = Math.min(Math.max(fraction, 0), 1);
+    const stageFrac = (stageIdx + subOffset) / (stages.length - 1);
+    const targetFrac = stageFrac * NARRATIVE_ACTIVE_ZONE;
+    const clamped = Math.min(Math.max(targetFrac, 0), 1);
     targetFractionRef.current = clamped;
     currentFractionRef.current = clamped;
     setScrollFraction(clamped);
 
-    const maxScroll =
-      document.documentElement.scrollHeight - window.innerHeight;
-    if (maxScroll > 0) {
-      window.scrollTo({ top: clamped * maxScroll, behavior: "smooth" });
+    if (sectionContainerRef.current) {
+      const total = sectionContainerRef.current.offsetHeight - window.innerHeight;
+      const targetScrollY = sectionContainerRef.current.offsetTop + clamped * total;
+      window.scrollTo({ top: targetScrollY, behavior: "smooth" });
     }
   }, []);
 
@@ -119,34 +123,37 @@ export function ProtocolNarrative() {
     let animationFrameId: number;
 
     const handleScroll = () => {
-      const maxScroll =
-        document.documentElement.scrollHeight - window.innerHeight;
-      if (maxScroll > 0) {
-        const frac = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
+      if (!sectionContainerRef.current) return;
+      const rect = sectionContainerRef.current.getBoundingClientRect();
+      const total = sectionContainerRef.current.offsetHeight - window.innerHeight;
+      if (total > 0) {
+        const frac = Math.min(Math.max(-rect.top / total, 0), 1);
         targetFractionRef.current = frac;
       }
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const step = 1 / (stages.length - 1);
+      const step = NARRATIVE_ACTIVE_ZONE / (stages.length - 1);
       if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
         e.preventDefault();
         const next = Math.min(targetFractionRef.current + step * 0.5, 1);
         targetFractionRef.current = next;
-        const maxScroll =
-          document.documentElement.scrollHeight - window.innerHeight;
-        if (maxScroll > 0) window.scrollTo({ top: next * maxScroll });
+        if (sectionContainerRef.current) {
+          const total = sectionContainerRef.current.offsetHeight - window.innerHeight;
+          window.scrollTo({ top: sectionContainerRef.current.offsetTop + next * total });
+        }
       } else if (e.key === "ArrowUp" || e.key === "PageUp") {
         e.preventDefault();
         const prev = Math.max(targetFractionRef.current - step * 0.5, 0);
         targetFractionRef.current = prev;
-        const maxScroll =
-          document.documentElement.scrollHeight - window.innerHeight;
-        if (maxScroll > 0) window.scrollTo({ top: prev * maxScroll });
+        if (sectionContainerRef.current) {
+          const total = sectionContainerRef.current.offsetHeight - window.innerHeight;
+          window.scrollTo({ top: sectionContainerRef.current.offsetTop + prev * total });
+        }
       }
     };
 
-    // Responsive, snappy damping loop (0.18 factor eliminates sluggish drag while maintaining butter smoothness)
+    // Responsive, snappy damping loop
     const updateLoop = () => {
       animationFrameId = requestAnimationFrame(updateLoop);
       const diff = targetFractionRef.current - currentFractionRef.current;
@@ -167,8 +174,9 @@ export function ProtocolNarrative() {
     };
   }, []);
 
-  // Continuous stage progress: float from 0.0 to 9.0
-  const progressFloat = scrollFraction * (stages.length - 1);
+  // Normalize scrollFraction so stages complete across 0.0 -> 0.92, locking through scrubber 010
+  const narrativeFraction = Math.min(scrollFraction / NARRATIVE_ACTIVE_ZONE, 1.0);
+  const progressFloat = narrativeFraction * (stages.length - 1);
   const activeStageIndex = Math.min(
     Math.max(Math.round(progressFloat), 0),
     stages.length - 1
@@ -232,12 +240,9 @@ export function ProtocolNarrative() {
   };
 
   return (
-    <>
-      {/* Background Virtual Scroll Height Track */}
-      <div className="w-full pointer-events-none" style={{ height: "950vh" }} />
-
-      {/* FIXED LOCKED FULLSCREEN VIEWPORT */}
-      <div className="fixed inset-0 w-full h-full overflow-hidden flex flex-col justify-between select-none z-10 bg-[#050505]">
+    <div ref={sectionContainerRef} className="relative w-full" style={{ height: "1000vh" }}>
+      {/* STICKY FULLSCREEN VIEWPORT */}
+      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden flex flex-col justify-between select-none z-10 bg-[#050505]">
         {/* ===================================================================== */}
         {/* TOP HUD BAR                                                           */}
         {/* ===================================================================== */}
@@ -277,6 +282,12 @@ export function ProtocolNarrative() {
             {/* Right: Quick Chapter Links & Status */}
             <div className="flex items-center gap-6 sm:gap-8">
               <nav className="hidden lg:flex items-center gap-6 text-xs font-mono uppercase tracking-widest text-[#888888]">
+                <a
+                  href="#experience"
+                  className="hover:text-[#61E7FF] transition-colors cursor-pointer"
+                >
+                  Experience
+                </a>
                 <button
                   onClick={() => jumpToStage(5)}
                   className="hover:text-[#F5F5F2] transition-colors cursor-pointer"
@@ -888,7 +899,7 @@ export function ProtocolNarrative() {
 
           {/* RIGHT COLUMN: 3D Protocol Engine Canvas */}
           <div className="hidden lg:flex w-[50%] xl:w-[52%] h-full max-h-[640px] items-center justify-center relative pointer-events-auto">
-            <ProtocolEngineCanvas scrollProgress={scrollFraction} />
+            <ProtocolEngineCanvas scrollProgress={narrativeFraction} />
           </div>
         </div>
 
@@ -932,6 +943,6 @@ export function ProtocolNarrative() {
           </div>
         </footer>
       </div>
-    </>
+    </div>
   );
 }

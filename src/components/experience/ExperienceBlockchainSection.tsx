@@ -1,7 +1,23 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useScroll } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const Scene01SmartwatchExperience = dynamic(
+  () =>
+    import("@/components/canvas/Scene01SmartwatchExperience").then(
+      (mod) => mod.Scene01SmartwatchExperience
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-full flex items-center justify-center bg-transparent text-zinc-600 font-mono text-xs">
+        INITIALIZING ENCLAVE RUNTIME...
+      </div>
+    ),
+  }
+);
 
 interface Milestone {
   id: string;
@@ -100,14 +116,22 @@ const milestones: Milestone[] = [
     role: "Blockchain Developer — Internship",
     organization: "Shamgar Software Solutions",
     location: "Visakhapatnam, India",
-    archetype: "Zero-Knowledge Medical Shard Architecture",
+    archetype: "AI-Powered Federated Healthcare Platform",
     narrative:
-      "The starting point. Enhanced a blockchain-based healthcare application to enable privacy-preserving medical diagnostics. Worked on smart contract verification interfaces and optimized model training pipelines. Improved training efficiency by 90%, enabling substantially faster diagnostic analysis without compromising patient data privacy.",
+      "A privacy-focused healthcare architecture that combines wearable health devices, federated AI, and smart contracts. Wearable devices collect healthcare data locally and contribute model updates to a shared AI training process without directly sending the underlying raw health data to the central system. The blockchain smart-contract layer provides a transparent and traceable record of contributions and verification events throughout the training workflow.",
     achievements: [
-      "90% improvement in model training efficiency for healthcare diagnostic analysis",
-      "Privacy-preserving smart contract verification for medical data integrity",
+      "Designed blockchain trust layer & smart contracts to validate and record federated AI contributions",
+      "Kept raw patient healthcare data strictly on local wearable devices with synchronized round aggregation",
+      "Created traceable cryptographic audit logs demonstrating end-to-end training and redistribution lifecycle",
+      "Demonstrated complete decentralized architecture combining AI, IoT wearables, and on-chain verification",
     ],
-    technologies: ["Smart Contracts", "Blockchain", "Privacy Protocols", "Healthcare Systems"],
+    technologies: [
+      "Federated AI",
+      "Smart Contracts",
+      "Blockchain Traceability",
+      "IoT Wearables",
+      "Privacy Protocols",
+    ],
     accentColor: "#F472B6",
     secondaryColor: "#818CF8",
   },
@@ -153,55 +177,60 @@ function StageVisual({ milestone, isInView }: { milestone: Milestone; isInView: 
         transition={{ duration: 2.0, delay: 0.3 }}
       />
 
-      {/* Geometric accent ring — right side */}
-      <motion.div
-        className="absolute border rounded-full"
-        style={{
-          right: "8%",
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "38vw",
-          height: "38vw",
-          maxWidth: 580,
-          maxHeight: 580,
-          borderColor: `${accentColor}18`,
-        }}
-        animate={{ opacity: isInView ? 1 : 0, rotate: isInView ? 15 : 0 }}
-        transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
-      />
+      {/* Geometric accent rings & Stage number watermark — hidden for stage 01 where 3D smartwatch experience lives */}
+      {stage !== "01" && (
+        <>
+          {/* Geometric accent ring — right side */}
+          <motion.div
+            className="absolute border rounded-full"
+            style={{
+              right: "8%",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "38vw",
+              height: "38vw",
+              maxWidth: 580,
+              maxHeight: 580,
+              borderColor: `${accentColor}18`,
+            }}
+            animate={{ opacity: isInView ? 1 : 0, rotate: isInView ? 15 : 0 }}
+            transition={{ duration: 2.4, ease: [0.16, 1, 0.3, 1] }}
+          />
 
-      {/* Inner ring */}
-      <motion.div
-        className="absolute border rounded-full"
-        style={{
-          right: "8%",
-          top: "50%",
-          transform: "translateY(-50%)",
-          width: "26vw",
-          height: "26vw",
-          maxWidth: 380,
-          maxHeight: 380,
-          borderColor: `${accentColor}25`,
-        }}
-        animate={{ opacity: isInView ? 1 : 0, rotate: isInView ? -10 : 0 }}
-        transition={{ duration: 2.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-      />
+          {/* Inner ring */}
+          <motion.div
+            className="absolute border rounded-full"
+            style={{
+              right: "8%",
+              top: "50%",
+              transform: "translateY(-50%)",
+              width: "26vw",
+              height: "26vw",
+              maxWidth: 380,
+              maxHeight: 380,
+              borderColor: `${accentColor}25`,
+            }}
+            animate={{ opacity: isInView ? 1 : 0, rotate: isInView ? -10 : 0 }}
+            transition={{ duration: 2.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          />
 
-      {/* Stage number — massive, ultra-transparent, right-anchored */}
-      <motion.div
-        className="absolute right-4 sm:right-10 lg:right-16 bottom-8 select-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isInView ? 0.055 : 0 }}
-        transition={{ duration: 1.8, delay: 0.1 }}
-        style={{ color: accentColor }}
-      >
-        <span
-          className="font-black leading-none tracking-tighter"
-          style={{ fontSize: "clamp(120px, 22vw, 280px)" }}
-        >
-          {stage}
-        </span>
-      </motion.div>
+          {/* Stage number — massive, ultra-transparent, right-anchored */}
+          <motion.div
+            className="absolute right-4 sm:right-10 lg:right-16 bottom-8 select-none"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isInView ? 0.055 : 0 }}
+            transition={{ duration: 1.8, delay: 0.1 }}
+            style={{ color: accentColor }}
+          >
+            <span
+              className="font-black leading-none tracking-tighter"
+              style={{ fontSize: "clamp(120px, 22vw, 280px)" }}
+            >
+              {stage}
+            </span>
+          </motion.div>
+        </>
+      )}
 
       {/* Horizontal scan line — subtle */}
       <motion.div
@@ -265,24 +294,53 @@ function MilestoneChapter({
   milestone: Milestone;
   index: number;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: "-15% 0px -15% 0px" });
+  const isShamgar = milestone.stage === "01" || milestone.id === "healthcare-privacy";
+  const trackRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(trackRef, { once: false, margin: "-15% 0px -15% 0px" });
+
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ["start start", "end end"],
+  });
+
+  const [progressVal, setProgressVal] = useState(0);
+
+  useEffect(() => {
+    if (!isShamgar) return;
+
+    const onScroll = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const totalScrollable = rect.height - window.innerHeight;
+      if (totalScrollable <= 0) return;
+      const p = Math.max(0, Math.min(1, -rect.top / totalScrollable));
+      setProgressVal(p);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+
+    const unsub = scrollYProgress.on("change", (latest) => {
+      setProgressVal(latest);
+    });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      unsub();
+    };
+  }, [isShamgar, scrollYProgress]);
 
   const staggerDelay = (i: number) => 0.05 + i * 0.08;
 
-  return (
-    <div
-      ref={ref}
-      data-milestone-index={index}
-      className="relative w-full flex items-center overflow-hidden"
-      style={{ minHeight: "100svh" }}
-    >
-      {/* Abstract atmospheric visual */}
-      <StageVisual milestone={milestone} isInView={isInView} />
-
-      {/* Content — left-anchored editorial */}
-      <div className="relative z-10 w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-14 py-12 sm:py-16 lg:py-20">
-        <div className="max-w-[540px] lg:max-w-[620px]">
+  const contentJSX = (
+    <div className="relative z-10 w-full max-w-[1700px] mx-auto px-6 sm:px-10 lg:px-14 py-8 sm:py-12 lg:py-16 h-full flex flex-col justify-center">
+      <div className={`flex flex-col ${isShamgar ? "lg:flex-row items-center justify-between gap-8 lg:gap-12 h-full" : ""}`}>
+        
+        {/* Left-anchored editorial column */}
+        <div className={`${isShamgar ? "w-full lg:w-[45%] xl:w-[42%] max-w-[580px]" : "max-w-[540px] lg:max-w-[620px]"} shrink-0 pointer-events-auto z-20`}>
 
           {/* Stage + Active badge */}
           <motion.div
@@ -395,8 +453,82 @@ function MilestoneChapter({
               </span>
             ))}
           </motion.div>
+
+          {/* Seamless Scroll-Locked Runtime Indicator for Shamgar */}
+          {isShamgar && (
+            <div className="mt-6 space-y-2">
+              <div className="flex items-center justify-between max-w-[360px] font-mono text-[10px] uppercase tracking-widest">
+                <span className="text-[#f472b6] font-bold flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f472b6] animate-pulse" />
+                  {progressVal >= 0.96
+                    ? "✓ ARCHITECTURE RUNTIME COMPLETE"
+                    : progressVal >= 0.8
+                    ? "STAGE 5/5: DECENTRALIZED DEPLOYMENT"
+                    : progressVal >= 0.6
+                    ? "STAGE 4/5: CONTRACT VERIFICATION"
+                    : progressVal >= 0.4
+                    ? "STAGE 3/5: ZK-SNARK AGGREGATION"
+                    : progressVal >= 0.2
+                    ? "STAGE 2/5: LOCAL SHARD GENERATION"
+                    : "STAGE 1/5: PATIENT TELEMETRY"}
+                </span>
+                <span className="tabular-nums text-zinc-400 font-semibold">
+                  {Math.min(100, Math.round(progressVal * 100))}%
+                </span>
+              </div>
+              <div className="w-full max-w-[360px] h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#f472b6] via-[#a855f7] to-[#00f0ff] transition-all duration-75 ease-out"
+                  style={{ width: `${Math.round(progressVal * 100)}%` }}
+                />
+              </div>
+              <p className="text-[9px] font-mono text-zinc-500">
+                {progressVal >= 0.96 ? "Scroll to continue to Projects ↓" : "Scroll down to advance through all 5 runtime phases"}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Right: 3D Smartwatch Scene centered with refined, compact sizing */}
+        {isShamgar && (
+          <div className="w-full lg:w-[50%] xl:w-[48%] flex items-center justify-center my-auto">
+            <div className="w-full max-w-[540px] h-[360px] sm:h-[420px] lg:h-[480px] relative pointer-events-auto z-10 flex items-center justify-center">
+              <Scene01SmartwatchExperience scrollProgress={progressVal} />
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+
+  // If Shamgar: Lock in place for 380vh of scroll until animation completes
+  if (isShamgar) {
+    return (
+      <div
+        ref={trackRef}
+        data-milestone-index={index}
+        className="relative w-full"
+        style={{ height: "380vh" }}
+      >
+        <div className="sticky top-0 h-screen w-full flex items-center overflow-hidden bg-[#030508]">
+          <StageVisual milestone={milestone} isInView={isInView} />
+          {contentJSX}
         </div>
       </div>
+    );
+  }
+
+  // Standard non-pinned milestone
+  return (
+    <div
+      ref={trackRef}
+      data-milestone-index={index}
+      className="relative w-full flex items-center overflow-hidden"
+      style={{ minHeight: "100svh" }}
+    >
+      <StageVisual milestone={milestone} isInView={isInView} />
+      {contentJSX}
     </div>
   );
 }
@@ -448,7 +580,7 @@ export const ExperienceBlockchainSection: React.FC = () => {
     <section
       ref={sectionRef}
       id="experience"
-      className="relative w-full bg-[#030508] text-[#F5F5F2] overflow-hidden scroll-mt-14"
+      className="relative w-full bg-[#030508] text-[#F5F5F2] overflow-visible scroll-mt-14"
       aria-label="Career Experience Timeline"
     >
       {/* ── Section intro header ── */}

@@ -4,6 +4,15 @@ import { motion } from "framer-motion";
 import { experienceData } from "@/data/experience";
 import { Briefcase, Calendar, CheckCircle2 } from "lucide-react";
 import { Reveal } from "@/components/ui/Reveal";
+import dynamic from "next/dynamic";
+
+const Scene01SmartwatchExperience = dynamic(
+  () =>
+    import("@/components/canvas/Scene01SmartwatchExperience").then(
+      (mod) => mod.Scene01SmartwatchExperience
+    ),
+  { ssr: false }
+);
 
 export function ExperienceSection() {
   return (
@@ -113,6 +122,13 @@ export function ExperienceSection() {
                   </motion.span>
                 ))}
               </div>
+
+              {/* 3D Smartwatch Interactive Simulation for Shamgar Software Solutions */}
+              {(exp.organization.includes("Shamgar") || exp.stageNumber === "01") && (
+                <div className="mt-6 w-full h-[420px] sm:h-[500px] rounded-xl overflow-hidden border border-emerald-500/20 bg-[#030508] relative">
+                  <Scene01SmartwatchExperience />
+                </div>
+              )}
             </motion.div>
           </motion.div>
         ))}

@@ -1,360 +1,532 @@
 "use client";
 
-import React, { useState } from "react";
-import { WorkMerkleDiscoveryCanvas } from "@/components/canvas/WorkMerkleDiscoveryCanvas";
-import {
-  workCategoriesData,
-  WorkCategoryItem,
-  WorkProjectItem,
-} from "@/data/work-categories";
-import { Github, ExternalLink, ArrowLeft, Terminal, Cpu, Layers, Sparkles } from "lucide-react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { WorkPreviewCanvas, ProjectCategory } from "@/components/canvas/WorkMerkleDiscoveryCanvas";
+import { workCategoriesData, WorkProjectItem } from "@/data/work-categories";
+import { Github, ExternalLink, ChevronLeft, ChevronRight, X, Layers } from "lucide-react";
 
-export function WorkProjectsSection() {
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [hoveredCategoryId, setHoveredCategoryId] = useState<string | null>(null);
-  const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null);
-  const [showArchitectureModal, setShowArchitectureModal] = useState(false);
-
-  const activeCategory: WorkCategoryItem | undefined = workCategoriesData.find(
-    (c) => c.id === (selectedCategoryId || hoveredCategoryId)
+const allProjects: (WorkProjectItem & { accentColor: string; catIndex: number })[] =
+  workCategoriesData.flatMap((cat, ci) =>
+    cat.projects.map((p) => ({ ...p, accentColor: cat.accentColor, catIndex: ci }))
   );
 
-  const activeProject: WorkProjectItem | undefined = activeCategory?.projects.find(
-    (p) => p.id === (selectedProjectId || hoveredProjectId)
-  ) || workCategoriesData.flatMap((c) => c.projects).find((p) => p.id === (selectedProjectId || hoveredProjectId));
+const STATUS_COLORS: Record<string, string> = {
+  "Production": "#00FF66",
+  "Active R&D": "#00F0FF",
+  "Open Source": "#818CF8",
+  "Audit Complete": "#F59E0B",
+  "Educational": "#F472B6",
+};
 
-  const handleSelectCategory = (catId: string) => {
-    if (selectedCategoryId === catId && !selectedProjectId) {
-      // Revert back to Root Overview
-      setSelectedCategoryId(null);
-      setSelectedProjectId(null);
-      setShowArchitectureModal(false);
-    } else {
-      setSelectedCategoryId(catId);
-      setSelectedProjectId(null);
-      setShowArchitectureModal(false);
+const CATEGORY_LABELS: Record<string, string> = {
+  PROTOCOL: "Protocol Engineering",
+  DAPPS: "Decentralised Applications",
+  "FULL-STACK": "Infrastructure & Systems",
+  LEARNING: "Research & Education",
+};
+
+export function WorkProjectsSection() {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [showDetail, setShowDetail] = useState(false);
+  const [dir, setDir] = useState<1 | -1>(1);
+
+  const project = allProjects[activeIdx];
+  const total = allProjects.length;
+
+  const sectionRef = useRef<HTMLElement>(null);
+  const isInView = useInView(sectionRef, { amount: 0.25 });
+  const [showHint, setShowHint] = useState(false);
+  const hasTriggeredRef = useRef(false);
+
+  // Trigger hint when section actually scrolls into view
+  useEffect(() => {
+    if (isInView && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+      setShowHint(true);
     }
-  };
+  }, [isInView]);
 
-  const handleSelectProject = (projId: string) => {
-    if (selectedProjectId === projId) {
-      // Revert back to Category view
-      setSelectedProjectId(null);
-      setShowArchitectureModal(false);
-    } else {
-      setSelectedProjectId(projId);
-      setShowArchitectureModal(true);
-    }
-  };
+  const dismissHint = useCallback(() => {
+    setShowHint(false);
+  }, []);
 
-  const handleResetToRoot = () => {
-    setSelectedCategoryId(null);
-    setSelectedProjectId(null);
-    setShowArchitectureModal(false);
+  const go = useCallback((d: 1 | -1) => {
+    dismissHint();
+    setDir(d);
+    setShowDetail(false);
+    setActiveIdx((prev) => (prev + d + total) % total);
+  }, [total, dismissHint]);
+
+  // Auto-dismiss hint after 4.5s
+  useEffect(() => {
+    if (!showHint) return;
+    const t = setTimeout(dismissHint, 4500);
+    return () => clearTimeout(t);
+  }, [showHint, dismissHint]);
+
+  // Keyboard navigation (← → for prev/next, Esc to close modal)
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        dismissHint();
+        go(1);
+      }
+      if (e.key === "ArrowLeft") {
+        dismissHint();
+        go(-1);
+      }
+      if (e.key === "Escape") {
+        dismissHint();
+        setShowDetail(false);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [go, dismissHint]);
+
+  const textVariants = {
+    enter: (d: number) => ({ opacity: 0, y: d > 0 ? 40 : -40 }),
+    center: { opacity: 1, y: 0 },
+    exit: (d: number) => ({ opacity: 0, y: d > 0 ? -40 : 40 }),
   };
 
   return (
     <section
       id="work"
-      className="relative w-full min-h-screen bg-[#04070e] text-[#F8FAFC] border-t border-[#1e293b]/60 flex flex-col justify-between overflow-hidden select-none"
-      style={{ height: "100vh" }}
+      ref={sectionRef}
+      className="relative w-full bg-[#020406] text-white border-t border-white/[0.04] overflow-hidden flex flex-col"
+      style={{ height: "100svh", maxHeight: "100svh" }}
     >
-      {/* 1. TOP HEADER & HIERARCHICAL BREADCRUMBS */}
-      <header className="relative z-40 w-full bg-[#070b14]/90 backdrop-blur-xl border-b border-[#1e293b]/80">
-        <div className="max-w-[1440px] mx-auto px-6 sm:px-10 h-16 sm:h-20 flex items-center justify-between">
-          {/* Left: Section Tag & Breadcrumbs */}
-          <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono">
-            <button
-              onClick={handleResetToRoot}
-              className="text-[#00F0FF] hover:underline font-bold uppercase tracking-wider cursor-pointer"
-            >
-              WORK ROOT
-            </button>
-            {selectedCategoryId && (
-              <>
-                <span className="text-[#64748B]">/</span>
-                <span className="text-[#38BDF8] font-semibold">{selectedCategoryId}</span>
-              </>
-            )}
-            {selectedProjectId && (
-              <>
-                <span className="text-[#64748B]">/</span>
-                <span className="text-[#F8FAFC] font-semibold hidden md:inline truncate max-w-[200px]">
-                  {activeProject?.name}
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Center: Category Selector HUD */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <button
-              onClick={handleResetToRoot}
-              className={`px-3 py-1 border text-[11px] font-mono transition-all cursor-pointer rounded-sm ${
-                !selectedCategoryId
-                  ? "border-[#00F0FF] bg-[#00F0FF]/15 text-[#00F0FF] font-bold shadow-[0_0_15px_rgba(0,240,255,0.4)]"
-                  : "border-[#1e293b] text-[#94A3B8] hover:border-[#38BDF8]/60 hover:text-white bg-[#0b0f19]/60"
-              }`}
-            >
-              ROOT
-            </button>
-
-            {workCategoriesData.map((cat) => {
-              const isCatSelected = selectedCategoryId === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleSelectCategory(cat.id)}
-                  className={`px-3 py-1 border text-[11px] font-mono transition-all cursor-pointer rounded-sm ${
-                    isCatSelected
-                      ? "border-[#00F0FF] bg-[#00F0FF]/20 text-[#00F0FF] font-bold shadow-[0_0_15px_rgba(0,240,255,0.4)]"
-                      : "border-[#1e293b] text-[#94A3B8] hover:border-[#38BDF8]/60 hover:text-white bg-[#0b0f19]/60"
-                  }`}
-                >
-                  {cat.title}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Right: State / Navigation hint */}
-          <div className="hidden lg:flex items-center gap-3 text-xs font-mono">
-            {selectedCategoryId ? (
-              <button
-                onClick={handleResetToRoot}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0f172a] border border-[#1e293b] text-[#94A3B8] hover:text-[#00F0FF] transition-all cursor-pointer"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>ROOT OVERVIEW</span>
-              </button>
-            ) : (
-              <span className="text-[#64748B]">
-                // SELECT CATEGORY BRANCH
-              </span>
-            )}
-          </div>
+      {/* ── COMPACT TOP BAR ──────────────────────────────────── */}
+      <div className="relative z-10 flex items-center justify-between px-6 sm:px-10 lg:px-14 shrink-0 border-b border-white/[0.05]" style={{ height: 52 }}>
+        <div className="flex items-center gap-4">
+          <p className="text-[9px] font-mono tracking-[0.25em] text-[#00F0FF]/50 uppercase">WORK // 02</p>
+          <span className="text-white/10">|</span>
+          <h2 className="text-sm sm:text-base font-black tracking-tight text-white">
+            SELECTED <span className="text-zinc-700">WORKS</span>
+          </h2>
         </div>
-      </header>
+        <div className="flex items-center gap-3">
+          <span className="text-[9px] font-mono text-zinc-700 tracking-widest">TOTAL</span>
+          <span className="text-sm font-black text-zinc-700 tabular-nums">{String(total).padStart(2, "0")}</span>
+        </div>
+      </div>
 
-      {/* 2. MAIN 3D DISCOVERY VIEWPORT */}
-      <div className="relative z-30 flex-1 w-full h-full overflow-hidden">
-        {/* Floating Context HUD (Left Corner) */}
-        <div className="absolute top-4 sm:top-6 left-4 sm:left-8 z-30 pointer-events-none max-w-xs sm:max-w-sm hidden sm:block">
-          {activeProject ? (
-            /* Active Project Focus Card */
-            <div className="p-4 rounded-xl bg-[#080d1a]/95 border border-[#1e293b] backdrop-blur-2xl shadow-[0_20px_45px_rgba(0,0,0,0.8)]">
-              <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-[#1e293b]">
-                <span className="text-[10px] font-mono text-[#00F0FF] font-bold tracking-wider">
-                  {activeProject.category} // {activeProject.year}
+      {/* ── MAIN VIEWER: flex-1 fills remaining space ─────────── */}
+      <div className="relative flex flex-1 min-h-0 w-full max-w-[1600px] mx-auto">
+        {/* ── LEFT PANEL ────────────────────────────────────── */}
+        <div className="relative z-10 flex flex-col justify-center w-full lg:w-[44%] px-6 sm:px-10 lg:px-14 py-4 shrink-0">
+
+          <AnimatePresence mode="wait" custom={dir}>
+            <motion.div
+              key={project.id}
+              custom={dir}
+              variants={textVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col gap-0"
+            >
+              {/* Category + Status row */}
+              <div className="flex items-center gap-2 sm:gap-3 mb-3">
+                <span
+                  className="text-[10px] font-mono font-bold tracking-[0.25em] uppercase"
+                  style={{ color: project.accentColor }}
+                >
+                  {CATEGORY_LABELS[project.category] ?? project.category}
                 </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#0f172a] text-[#34D399] border border-[#1e293b]">
-                  {activeProject.status}
+                <span className="text-zinc-800">·</span>
+                <span
+                  className="text-[10px] font-mono"
+                  style={{ color: STATUS_COLORS[project.status] }}
+                >
+                  ● {project.status}
                 </span>
+                <span className="text-zinc-800">·</span>
+                <span className="text-[10px] font-mono text-zinc-700">{project.year}</span>
               </div>
-              <h3 className="text-sm font-bold text-white mb-0.5">{activeProject.name}</h3>
-              <p className="text-xs font-mono text-[#38BDF8] mb-2">{activeProject.subtitle}</p>
-              <p className="text-[11px] text-[#cbd5e1] leading-relaxed mb-3 line-clamp-3">
-                {activeProject.description}
+
+              {/* Project name — the headline */}
+              <h3
+                className="font-black tracking-tight leading-[0.92] text-white mb-3"
+                style={{ fontSize: "clamp(1.4rem, 2.8vw, 2.6rem)" }}
+              >
+                {project.name}
+              </h3>
+
+              {/* Subtitle */}
+              <p className="text-[12px] font-light text-zinc-500 leading-relaxed mb-4 max-w-[460px]">
+                {project.subtitle}
               </p>
-              <div className="flex flex-wrap gap-1 mb-3">
-                {activeProject.techStack.map((tech) => (
+
+              {/* Key metrics */}
+              {project.metrics && (
+                <div className="flex gap-5 sm:gap-8 mb-4">
+                  {project.metrics.map((m) => (
+                    <div key={m.label}>
+                      <p
+                        className="font-black font-mono leading-none mb-0.5"
+                        style={{ fontSize: "clamp(1.2rem, 2vw, 1.9rem)", color: project.accentColor }}
+                      >
+                        {m.value}
+                      </p>
+                      <p className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">{m.label}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Tech stack */}
+              <div className="flex flex-wrap gap-1.5 mb-4">
+                {project.techStack.slice(0, 5).map((tech) => (
                   <span
                     key={tech}
-                    className="px-2 py-0.5 rounded bg-[#0f172a] border border-[#1e293b] text-[9px] font-mono text-[#38BDF8]"
+                    className="px-2.5 py-0.5 rounded-full text-[9px] font-mono border text-zinc-500"
+                    style={{ borderColor: `${project.accentColor}20`, backgroundColor: `${project.accentColor}07` }}
                   >
                     {tech}
                   </span>
                 ))}
+                {project.techStack.length > 5 && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-mono border border-white/[0.07] text-zinc-600">+{project.techStack.length - 5}</span>
+                )}
               </div>
-              <div className="pt-2 border-t border-[#1e293b] flex items-center justify-between text-[10px] font-mono text-[#64748B]">
-                <span>CLICK NODE TO ENTER ARCHITECTURE</span>
-                <Sparkles className="w-3.5 h-3.5 text-[#00F0FF]" />
-              </div>
-            </div>
-          ) : activeCategory ? (
-            /* Active Category Focus Card */
-            <div className="p-4 rounded-xl bg-[#080d1a]/95 border border-[#1e293b] backdrop-blur-2xl shadow-[0_20px_45px_rgba(0,0,0,0.8)]">
-              <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-[#1e293b]">
-                <span className="text-[10px] font-mono text-[#00F0FF] font-bold tracking-wider">
-                  CATEGORY BRANCH
-                </span>
-                <span className="text-[10px] font-mono text-[#64748B]">
-                  {activeCategory.projects.length} SYSTEMS
-                </span>
-              </div>
-              <h3 className="text-sm font-bold text-white mb-1">{activeCategory.title}</h3>
-              <p className="text-xs font-mono text-[#38BDF8] mb-2">{activeCategory.tagline}</p>
-              <p className="text-[11px] text-[#cbd5e1] leading-relaxed">
-                {activeCategory.description}
-              </p>
-            </div>
-          ) : (
-            /* Root State Card */
-            <div className="p-4 rounded-xl bg-[#080d1a]/95 border border-[#1e293b] backdrop-blur-2xl shadow-[0_20px_45px_rgba(0,0,0,0.8)]">
-              <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-[#1e293b]">
-                <span className="text-[10px] font-mono text-[#00F0FF] font-bold tracking-wider">
-                  PROJECT HIERARCHY
-                </span>
-                <span className="text-[10px] font-mono text-[#64748B]">4 DOMAINS</span>
-              </div>
-              <h3 className="text-sm font-bold text-white mb-1">Computational Work Root</h3>
-              <p className="text-xs text-[#94A3B8] leading-relaxed mb-3">
-                Select a domain branch or click on any 3D node to explore core engineering projects.
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {workCategoriesData.map((c) => (
-                  <span
-                    key={c.id}
-                    className="px-2 py-0.5 rounded bg-[#0f172a] border border-[#1e293b] text-[9px] font-mono text-[#cbd5e1]"
+
+              {/* Action row */}
+              <div className="flex items-center gap-2">
+                {project.githubUrl && (
+                  <a
+                    href={project.githubUrl} target="_blank" rel="noreferrer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/[0.1] bg-white/[0.04] text-[11px] font-mono text-zinc-300 hover:border-white/[0.2] hover:text-white transition-all"
                   >
-                    ● {c.title}
+                    <Github className="w-3 h-3" /> Repository
+                  </a>
+                )}
+                {project.demoUrl && (
+                  <a
+                    href={project.demoUrl} target="_blank" rel="noreferrer"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-mono transition-all border"
+                    style={{ borderColor: `${project.accentColor}40`, backgroundColor: `${project.accentColor}10`, color: project.accentColor }}
+                  >
+                    <ExternalLink className="w-3 h-3" /> Live Demo
+                  </a>
+                )}
+                <button
+                  onClick={() => setShowDetail(true)}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-mono transition-all border cursor-pointer"
+                  style={{ borderColor: `${project.accentColor}20`, color: `${project.accentColor}80` }}
+                >
+                  Architecture ↗
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* ── RIGHT PANEL: Full-height 3D Canvas ─────────────── */}
+        <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-[58%]">
+          {/* Gradient bleed from left into canvas */}
+          <div className="absolute inset-y-0 left-0 w-40 z-10 pointer-events-none"
+            style={{ background: "linear-gradient(to right, #020406 0%, transparent 100%)" }} />
+          {/* Bottom fade */}
+          <div className="absolute inset-x-0 bottom-0 h-24 z-10 pointer-events-none"
+            style={{ background: "linear-gradient(to top, #020406 0%, transparent 100%)" }} />
+
+          <WorkPreviewCanvas category={project.category as ProjectCategory} />
+
+          {/* Floating project index on canvas */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute top-6 right-6 z-20 pointer-events-none"
+            >
+              <span
+                className="text-[9px] font-mono tracking-widest uppercase px-3 py-1.5 rounded-full backdrop-blur-md border"
+                style={{ color: project.accentColor, borderColor: `${project.accentColor}30`, backgroundColor: "rgba(2,4,6,0.7)" }}
+              >
+                {project.category} — ARCHITECTURE PREVIEW
+              </span>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* ── BOTTOM NAV — compact ─────────────────────────────── */}
+      <div className="relative z-20 shrink-0 border-t border-white/[0.05] max-w-[1600px] mx-auto w-full">
+        <div className="flex items-stretch" style={{ height: 60 }}>
+
+          {/* ── PREV ─────────────────────────────────────────── */}
+          <button
+            onClick={() => go(-1)}
+            className="group flex items-center gap-3 px-6 sm:px-10 lg:px-14 flex-1 text-left transition-all hover:bg-white/[0.02] cursor-pointer border-r border-white/[0.05]"
+          >
+            <div
+              className="w-10 h-10 rounded-full border flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
+              style={{
+                borderColor: `${allProjects[(activeIdx - 1 + total) % total].accentColor}30`,
+                backgroundColor: `${allProjects[(activeIdx - 1 + total) % total].accentColor}08`,
+              }}
+            >
+              <ChevronLeft
+                className="w-4 h-4 transition-colors duration-200"
+                style={{ color: allProjects[(activeIdx - 1 + total) % total].accentColor }}
+              />
+            </div>
+            <div className="min-w-0 hidden sm:block">
+              <p className="text-[8px] font-mono text-zinc-700 tracking-widest mb-0.5 uppercase">Previous</p>
+              <p className="text-[11px] font-semibold text-zinc-500 group-hover:text-zinc-200 transition-colors duration-200 truncate">
+                {allProjects[(activeIdx - 1 + total) % total].name}
+              </p>
+            </div>
+          </button>
+
+          {/* ── CENTER: Progress pills ───────────────────────── */}
+          <div className="hidden lg:flex items-center justify-center px-6 shrink-0 gap-1.5">
+            {allProjects.map((p, i) => {
+              const isActive = i === activeIdx;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => { setDir(i > activeIdx ? 1 : -1); setActiveIdx(i); setShowDetail(false); }}
+                  title={p.name}
+                  className="transition-all duration-300 cursor-pointer rounded-full"
+                  style={{
+                    width: isActive ? 24 : 6,
+                    height: 6,
+                    backgroundColor: isActive ? p.accentColor : "#1c2030",
+                  }}
+                />
+              );
+            })}
+          </div>
+
+          {/* ── NEXT ─────────────────────────────────────────── */}
+          <button
+            onClick={() => go(1)}
+            className="group flex items-center gap-3 px-6 sm:px-10 lg:px-14 flex-1 justify-end text-right transition-all hover:bg-white/[0.02] cursor-pointer border-l border-white/[0.05] lg:border-l-0"
+          >
+            <div className="min-w-0 hidden sm:block">
+              <p className="text-[8px] font-mono text-zinc-700 tracking-widest mb-0.5 uppercase">Next</p>
+              <p className="text-[11px] font-semibold text-zinc-500 group-hover:text-zinc-200 transition-colors duration-200 truncate">
+                {allProjects[(activeIdx + 1) % total].name}
+              </p>
+            </div>
+            <div
+              className="w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110"
+              style={{
+                borderColor: `${project.accentColor}40`,
+                backgroundColor: `${project.accentColor}10`,
+              }}
+            >
+              <ChevronRight
+                className="w-4 h-4 transition-colors duration-200"
+                style={{ color: project.accentColor }}
+              />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════
+          KEYBOARD HINT OVERLAY — first visit only
+      ══════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {showHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 24, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.96, transition: { duration: 0.25 } }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute bottom-20 sm:bottom-24 inset-x-0 z-40 flex justify-center px-4 pointer-events-auto"
+          >
+            <div
+              onClick={dismissHint}
+              className="group relative flex items-center gap-3 sm:gap-4 px-5 py-3 rounded-2xl backdrop-blur-2xl border border-white/[0.14] bg-[#020406]/92 shadow-[0_12px_50px_rgba(0,0,0,0.85)] cursor-pointer hover:border-white/30 transition-all overflow-hidden select-none"
+              style={{
+                boxShadow: `0 8px 32px -8px ${project.accentColor}35, 0 4px 16px rgba(0,0,0,0.8)`,
+              }}
+            >
+              {/* Subtle top ambient specular highlight */}
+              <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+
+              {/* Left arrow key cap with micro bounce */}
+              <motion.div
+                className="flex items-center"
+                animate={{ x: [-2.5, 0.5, -2.5] }}
+                transition={{ duration: 1.3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <div className="w-8 h-8 rounded-lg border border-white/20 bg-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_5px_rgba(0,0,0,0.5)] flex items-center justify-center group-hover:border-white/40 transition-colors">
+                  <span className="text-white text-sm font-black font-mono leading-none">←</span>
+                </div>
+              </motion.div>
+
+              {/* Center text description */}
+              <div className="text-center px-1">
+                <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                  <span
+                    className="w-1.5 h-1.5 rounded-full animate-ping"
+                    style={{ backgroundColor: project.accentColor }}
+                  />
+                  <p className="text-[9px] font-mono font-semibold tracking-[0.2em] text-zinc-400 uppercase">
+                    Interactive Navigation
+                  </p>
+                </div>
+                <p className="text-[11px] sm:text-xs font-medium text-white tracking-tight">
+                  Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-mono text-[10px] font-bold border border-white/20">←</kbd> or <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-mono text-[10px] font-bold border border-white/20">→</kbd> to browse projects
+                </p>
+              </div>
+
+              {/* Right arrow key cap with micro bounce */}
+              <motion.div
+                className="flex items-center"
+                animate={{ x: [2.5, -0.5, 2.5] }}
+                transition={{ duration: 1.3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <div className="w-8 h-8 rounded-lg border border-white/20 bg-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_5px_rgba(0,0,0,0.5)] flex items-center justify-center group-hover:border-white/40 transition-colors">
+                  <span className="text-white text-sm font-black font-mono leading-none">→</span>
+                </div>
+              </motion.div>
+
+              {/* Close / dismiss button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  dismissHint();
+                }}
+                className="ml-0.5 p-1 rounded-full text-zinc-500 hover:text-white hover:bg-white/10 transition-colors"
+                title="Dismiss hint"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+
+              {/* Synchronized 4.5s countdown timer bar */}
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-[2px] origin-left pointer-events-none"
+                style={{ backgroundColor: project.accentColor }}
+                initial={{ scaleX: 1 }}
+                animate={{ scaleX: 0 }}
+                transition={{ duration: 4.5, ease: "linear" }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ══════════════════════════════════════════════════════
+          ARCHITECTURE DEEP-DIVE MODAL
+      ══════════════════════════════════════════════════════ */}
+      <AnimatePresence>
+        {showDetail && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md"
+            onClick={(e) => { if (e.target === e.currentTarget) setShowDetail(false); }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.93, y: 28 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 12 }}
+              transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+              className="relative w-full max-w-2xl bg-[#060b16] border border-white/[0.1] rounded-2xl p-6 sm:p-8 max-h-[88vh] overflow-y-auto"
+              style={{ boxShadow: `0 40px 100px ${project.accentColor}15` }}
+            >
+              <div
+                className="absolute top-0 left-0 right-0 h-[1.5px] rounded-t-2xl"
+                style={{ background: `linear-gradient(90deg, transparent, ${project.accentColor}, transparent)` }}
+              />
+              <button
+                onClick={() => setShowDetail(false)}
+                className="absolute top-5 right-5 w-8 h-8 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] flex items-center justify-center text-zinc-500 hover:text-white transition-all cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] font-mono font-bold tracking-widest uppercase" style={{ color: project.accentColor }}>
+                  {project.category}
+                </span>
+                <span className="text-zinc-700 text-xs">// {project.year}</span>
+                <span className="ml-auto text-[10px] font-mono" style={{ color: STATUS_COLORS[project.status] }}>
+                  ● {project.status}
+                </span>
+              </div>
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1">{project.name}</h2>
+              <p className="text-xs font-mono mb-5" style={{ color: `${project.accentColor}99` }}>{project.subtitle}</p>
+              <p className="text-sm text-zinc-400 leading-[1.85] mb-6">{project.description}</p>
+
+              {project.metrics && (
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {project.metrics.map((m) => (
+                    <div key={m.label} className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.07]">
+                      <p className="text-[9px] font-mono text-zinc-600 mb-1 uppercase tracking-wider">{m.label}</p>
+                      <p className="text-lg font-black font-mono" style={{ color: project.accentColor }}>{m.value}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mb-6">
+                <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-600 uppercase tracking-wider mb-3">
+                  <Layers className="w-3.5 h-3.5" style={{ color: project.accentColor }} />
+                  ARCHITECTURE STACK
+                </div>
+                <div className="space-y-2">
+                  {project.architectureLayers.map((layer, idx) => (
+                    <div key={layer.layerName} className="flex items-center justify-between px-4 py-2.5 rounded-xl bg-white/[0.025] border border-white/[0.06] text-xs">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono font-bold tabular-nums" style={{ color: project.accentColor }}>
+                          {String(idx + 1).padStart(2, "0")}
+                        </span>
+                        <span className="font-semibold text-zinc-200">{layer.layerName}</span>
+                        <span className="text-zinc-600 hidden sm:inline">— {layer.description}</span>
+                      </div>
+                      <span className="font-mono text-zinc-500 text-[10px] ml-4 shrink-0">{layer.tech}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-6">
+                {project.techStack.map((tech) => (
+                  <span key={tech} className="px-3 py-1 rounded-full text-[10px] font-mono text-zinc-500 border border-white/[0.08] bg-white/[0.02]">
+                    {tech}
                   </span>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* 3D WebGL Canvas */}
-        <WorkMerkleDiscoveryCanvas
-          selectedCategoryId={selectedCategoryId}
-          selectedProjectId={selectedProjectId}
-          hoveredCategoryId={hoveredCategoryId}
-          hoveredProjectId={hoveredProjectId}
-          onHoverCategory={setHoveredCategoryId}
-          onSelectCategory={handleSelectCategory}
-          onHoverProject={setHoveredProjectId}
-          onSelectProject={handleSelectProject}
-          onResetToRoot={handleResetToRoot}
-        />
-      </div>
-
-      {/* 3. PROJECT ARCHITECTURE DEEP DIVE MODAL / DRAWER */}
-      {showArchitectureModal && activeProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fadeIn">
-          <div className="relative w-full max-w-2xl bg-[#080e1b] border border-[#1e293b] rounded-2xl shadow-[0_25px_60px_rgba(0,240,255,0.2)] p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
-            {/* Close Button */}
-            <button
-              onClick={() => setShowArchitectureModal(false)}
-              className="absolute top-5 right-5 text-[#94A3B8] hover:text-white font-mono text-xs px-2.5 py-1 rounded bg-[#0f172a] border border-[#1e293b] cursor-pointer"
-            >
-              ✕ ESC
-            </button>
-
-            {/* Modal Header */}
-            <div className="flex items-center gap-2 mb-2 text-xs font-mono text-[#00F0FF]">
-              <span>{activeProject.category}</span>
-              <span>//</span>
-              <span>{activeProject.year}</span>
-              <span>//</span>
-              <span className="text-[#34D399]">{activeProject.status}</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">{activeProject.name}</h2>
-            <p className="text-sm font-mono text-[#38BDF8] mb-4">{activeProject.subtitle}</p>
-
-            <p className="text-sm text-[#cbd5e1] leading-relaxed mb-6">
-              {activeProject.description}
-            </p>
-
-            {/* Metrics Grid */}
-            {activeProject.metrics && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-                {activeProject.metrics.map((m) => (
-                  <div
-                    key={m.label}
-                    className="p-3 rounded-lg bg-[#0c1424] border border-[#1e293b]"
-                  >
-                    <span className="text-[10px] font-mono text-[#94A3B8] block mb-0.5">
-                      {m.label}
-                    </span>
-                    <span className="text-base sm:text-lg font-bold text-[#00F0FF] font-mono">
-                      {m.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Technical Architecture Strata Layers */}
-            <div className="mb-6">
-              <h4 className="text-xs font-mono text-[#94A3B8] uppercase tracking-wider mb-3 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#00F0FF]" />
-                <span>Technical Architecture Stack</span>
-              </h4>
-              <div className="space-y-2">
-                {activeProject.architectureLayers.map((layer, idx) => (
-                  <div
-                    key={layer.layerName}
-                    className="p-3 rounded-lg bg-[#0b1220] border border-[#1e293b] flex items-center justify-between gap-3 text-xs"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-mono text-[#00F0FF] font-bold">0{idx + 1}</span>
-                      <span className="font-semibold text-white">{layer.layerName}</span>
-                      <span className="text-[#94A3B8] hidden sm:inline">— {layer.description}</span>
-                    </div>
-                    <span className="font-mono px-2 py-0.5 rounded bg-[#0f172a] text-[#38BDF8] border border-[#1e293b] shrink-0">
-                      {layer.tech}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Action Links */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-[#1e293b]">
-              <div className="flex items-center gap-2">
-                {activeProject.githubUrl && (
-                  <a
-                    href={activeProject.githubUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#0f172a] border border-[#1e293b] text-xs font-mono text-white hover:border-[#00F0FF] hover:text-[#00F0FF] transition-all"
-                  >
-                    <Github className="w-3.5 h-3.5" />
-                    <span>View Repository</span>
+              <div className="flex items-center gap-3 pt-4 border-t border-white/[0.06]">
+                {project.githubUrl && (
+                  <a href={project.githubUrl} target="_blank" rel="noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.1] text-xs font-mono text-zinc-300 hover:border-white/[0.2] hover:text-white transition-all">
+                    <Github className="w-3.5 h-3.5" /> Repository
                   </a>
                 )}
-                {activeProject.demoUrl && (
-                  <a
-                    href={activeProject.demoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#00F0FF]/15 border border-[#00F0FF]/50 text-xs font-mono text-[#00F0FF] hover:bg-[#00F0FF]/25 transition-all"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    <span>Live Simulator</span>
+                {project.demoUrl && (
+                  <a href={project.demoUrl} target="_blank" rel="noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border text-xs font-mono transition-all"
+                    style={{ borderColor: `${project.accentColor}40`, backgroundColor: `${project.accentColor}12`, color: project.accentColor }}>
+                    <ExternalLink className="w-3.5 h-3.5" /> Live Demo
                   </a>
                 )}
+                <button onClick={() => setShowDetail(false)}
+                  className="ml-auto px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer">
+                  Close
+                </button>
               </div>
-
-              <button
-                onClick={() => setShowArchitectureModal(false)}
-                className="px-4 py-1.5 rounded-lg bg-[#1e293b] text-xs font-mono text-white hover:bg-[#334155] transition-all cursor-pointer"
-              >
-                Return to Tree
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 4. BOTTOM STATUS BAR */}
-      <footer className="relative z-40 w-full bg-[#070b14]/90 backdrop-blur-xl border-t border-[#1e293b]/80 py-3 px-6 sm:px-10">
-        <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-[#94A3B8]">
-          <div className="flex items-center gap-3">
-            <span className="text-[#00F0FF] font-bold">● DISCOVERY ENGINE:</span>
-            <span>
-              {selectedCategoryId
-                ? `INSPECTING ${selectedCategoryId} BRANCH`
-                : "COMPUTATIONAL WORK ROOT ACTIVE"}
-            </span>
-          </div>
-          <div className="text-[11px] text-[#64748B]">
-            HOVER TO EXPLORE · CLICK NODE TO EXPAND HIERARCHY
-          </div>
-        </div>
-      </footer>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

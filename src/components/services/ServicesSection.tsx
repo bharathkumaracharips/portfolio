@@ -42,13 +42,13 @@ export const ServicesSection: React.FC = () => {
   return (
     <section
       id="services"
-      className="relative w-full min-h-screen bg-[#050505] text-[#F5F5F2] py-20 px-4 sm:px-6 lg:px-12 flex flex-col justify-center border-t border-white/5"
+      className="relative w-full min-h-screen bg-[#050505] text-[#F5F5F2] py-12 sm:py-16 lg:py-20 px-6 sm:px-10 lg:px-14 flex flex-col justify-center border-t border-white/[0.05] scroll-mt-14"
     >
       {/* Background Ambient Glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[850px] h-[400px] bg-cyan-950/20 blur-[150px] pointer-events-none rounded-full" />
       <div className="absolute bottom-12 right-12 w-[550px] h-[320px] bg-emerald-950/15 blur-[130px] pointer-events-none rounded-full" />
 
-      <div className="relative max-w-7xl mx-auto w-full flex flex-col gap-8">
+      <div className="relative max-w-[1600px] mx-auto w-full flex flex-col gap-6 sm:gap-8">
         {/* Top Header & Telemetry */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/10">
           <div className="flex flex-col gap-2">

@@ -417,7 +417,7 @@ export const TeachingProtocolCanvas: React.FC<TeachingProtocolCanvasProps> = ({
   return (
     <div
       ref={mountRef}
-      className="relative w-full h-[460px] sm:h-[520px] md:h-[560px] rounded-xl overflow-hidden bg-gradient-to-b from-[#050505] via-[#08080c] to-[#050505] border border-white/5 shadow-2xl"
+      className="relative w-full h-[360px] sm:h-[420px] lg:h-[460px] rounded-xl overflow-hidden bg-gradient-to-b from-[#050505] via-[#08080c] to-[#050505] border border-white/5 shadow-2xl"
     >
       {/* HUD Telemetry Overlay */}
       <div className="absolute top-4 left-4 z-10 flex items-center gap-2 pointer-events-none">

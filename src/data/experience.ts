@@ -14,13 +14,23 @@ export interface BlockchainExperienceBlock {
   isCurrent?: boolean;
 }
 
-export const experienceData: ExperienceItem[] = [
+export interface ExperienceMilestoneItem extends ExperienceItem {
+  archetype?: string;
+  telemetryBadges?: string[];
+  stageNumber?: string;
+  isCurrent?: boolean;
+}
+
+export const experienceData: ExperienceMilestoneItem[] = [
   {
     id: "block-01",
+    stageNumber: "01",
     organization: "Shamgar Software Solutions",
     position: "Blockchain Developer (Internship)",
     period: "JUL 2024 — AUG 2024",
     location: "Visakhapatnam, Andhra Pradesh, India · Remote",
+    archetype: "Zero-Knowledge Medical Shard Architecture",
+    telemetryBadges: ["ZK-MD01 Shards", "+90% Training Speed", "EHR Smart Contracts"],
     responsibilities: [
       "Worked on enhancing a blockchain-based healthcare application to enable privacy-preserving medical diagnostics.",
       "Optimized model training pipelines and smart contract execution parameters.",
@@ -33,10 +43,13 @@ export const experienceData: ExperienceItem[] = [
   },
   {
     id: "block-02",
+    stageNumber: "02",
     organization: "Freelance Protocol Engineering",
     position: "Blockchain Developer",
     period: "AUG 2024 — SEP 2025",
     location: "Vizianagaram, Andhra Pradesh, India · Remote",
+    archetype: "Sovereign Drone Telemetry Substrate Chain",
+    telemetryBadges: ["Polkadot Substrate", "98% Telemetry Accuracy", "PoS Flight Verification"],
     responsibilities: [
       "Built a private sovereign blockchain on Polkadot/Rust tailored for secure real-time drone telemetry log storage.",
       "Designed custom Proof of Stake (PoS) consensus logic and cryptographic verification schemes for flight data.",
@@ -49,10 +62,13 @@ export const experienceData: ExperienceItem[] = [
   },
   {
     id: "block-03",
+    stageNumber: "03",
     organization: "ONE DEV",
     position: "Tutor – Blockchain Engineering",
     period: "FEB 2026 — MAY 2026",
     location: "Nairobi County, Kenya · Remote",
+    archetype: "EVM Opcode Execution & WASM Curriculum Console",
+    telemetryBadges: ["EVM Bytecode Stack", "WASM Runtime Matrix", "Diploma Program"],
     responsibilities: [
       "Created and delivered high-quality curriculum content for the comprehensive Blockchain Engineering Diploma program.",
       "Delivered structured technical lessons through live hands-on coding sessions twice weekly.",
@@ -65,10 +81,13 @@ export const experienceData: ExperienceItem[] = [
   },
   {
     id: "block-04",
+    stageNumber: "04",
     organization: "Caerulean Bytechains Pvt Ltd",
     position: "Blockchain Engineer (Rust & Substrate)",
     period: "MAR 2025 — SEP 2025",
     location: "Hyderabad, Telangana, India · On-site",
+    archetype: "Tri-Consensus Verification Engine (PoS / PoI / DCF)",
+    telemetryBadges: ["PoS / PoI / DCF Consensus", "Zero-Contention Engine", "Polkadot SDK"],
     responsibilities: [
       "Architected and implemented custom consensus protocols across experimental and production testnets.",
       "Engineered Substrate state transition pallets and low-level cryptographic verification mechanisms.",
@@ -81,10 +100,14 @@ export const experienceData: ExperienceItem[] = [
   },
   {
     id: "block-05",
+    stageNumber: "05",
+    isCurrent: true,
     organization: "Caerulean Bytechains Pvt Ltd",
     position: "Blockchain Developer – Protocol & Runtime Architecture (CBC Chain)",
     period: "SEP 2025 — PRESENT",
     location: "Hyderabad, Telangana, India · On-site",
+    archetype: "Sovereign Layer-1 CBC Chain Genesis Architecture",
+    telemetryBadges: ["L1 Sovereign Core", "Deterministic WASM", "Zero-Downtime Upgrades"],
     responsibilities: [
       "Designed and developed CBC Chain, a custom Substrate-based Layer-1 blockchain protocol built from first principles.",
       "Responsible for core protocol architecture, deterministic WASM runtime implementation, custom gas metering, and consensus design.",

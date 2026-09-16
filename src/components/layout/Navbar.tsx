@@ -6,13 +6,12 @@ import { Cpu, Mail, Menu, X, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { name: "STACK", href: "#stack" },
-  { name: "L1", href: "#l1" },
-  { name: "L2", href: "#l2" },
-  { name: "INFRA", href: "#infrastructure" },
-  { name: "PERF", href: "#performance" },
-  { name: "PROJECTS", href: "#projects" },
   { name: "EXPERIENCE", href: "#experience" },
+  { name: "WORK", href: "#work" },
+  { name: "TEACHING", href: "#teaching" },
+  { name: "CERTS", href: "#certifications" },
+  { name: "SERVICES", href: "#services" },
+  { name: "ENDORSEMENTS", href: "#endorsements" },
   { name: "CONTACT", href: "#contact" },
 ];
 

@@ -108,3 +108,21 @@ export interface Testimonial {
   project: string;
   linkedInUrl?: string;
 }
+
+export interface Endorsement {
+  id: string;
+  signalNumber: string;
+  quote: string;
+  author: string;
+  role?: string;
+  organization?: string;
+  relationship?: string;
+  category: "ENGINEERING" | "TEACHING" | "COLLABORATION";
+  source?: string;
+  sourceUrl?: string;
+  image?: string;
+  featured?: boolean;
+  projectContext?: string;
+  highlights?: string[];
+}
+

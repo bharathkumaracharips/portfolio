@@ -15,5 +15,11 @@ export const heroData = {
     github: "https://github.com/psbharathkumarachari",
     linkedin: "https://linkedin.com/in/psbharathkumarachari",
     email: "contact@bharathachari.dev",
+    upwork: "https://www.upwork.com/freelancers/~01psbharathkumarachari",
+    fiverr: "https://www.fiverr.com/psbharathkumar",
+    teacheron: "https://www.teacheron.com/tutor-profile/psbharathkumarachari",
+    resumeUrl: "/resume.pdf",
   },
 };
+
+

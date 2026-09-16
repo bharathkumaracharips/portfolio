@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { ProtocolEngineCanvas } from "@/components/canvas/ProtocolEngineCanvas";
+import { ResumeModal } from "@/components/ui/ResumeModal";
+import { Download } from "lucide-react";
 
 interface StageDef {
   id: number;
@@ -98,6 +100,7 @@ const protocolLayers = [
 export function ProtocolNarrative() {
   const sectionContainerRef = useRef<HTMLDivElement>(null);
   const [scrollFraction, setScrollFraction] = useState(0);
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
   const currentFractionRef = useRef(0);
   const targetFractionRef = useRef(0);
 
@@ -255,18 +258,35 @@ export function ProtocolNarrative() {
             />
           </div>
 
-          <div className="max-w-[1440px] mx-auto px-6 sm:px-10 h-16 sm:h-20 flex items-center justify-between">
-            {/* Left: Monogram */}
+          <div className="max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-14 h-16 sm:h-20 flex items-center justify-between">
+            {/* Left: Profile Avatar & Monogram */}
             <button
               onClick={() => jumpToStage(0)}
-              className="group flex items-baseline gap-3 text-left focus:outline-none cursor-pointer"
+              className="group flex items-center gap-3 text-left focus:outline-none cursor-pointer"
             >
-              <span className="text-xl font-bold tracking-tighter text-[#F5F5F2] group-hover:text-[#61E7FF] transition-colors">
-                BKA.
-              </span>
-              <span className="hidden md:inline-block text-[11px] font-mono tracking-widest text-[#888888] uppercase">
-                Bharath Kumar Achari
-              </span>
+              <div className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full overflow-hidden border border-white/20 group-hover:border-[#61E7FF] transition-all bg-[#111116] shadow-[0_0_12px_rgba(0,0,0,0.6)] shrink-0">
+                <img
+                  src="/profile.jpg"
+                  alt="Bharath Kumar Achari"
+                  className="w-full h-full object-cover object-[center_28%] grayscale contrast-115 group-hover:grayscale-0 transition-all duration-300 scale-125"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://github.com/psbharathkumarachari.png";
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center font-mono font-bold text-xs text-[#61E7FF] bg-[#0c0d12] -z-10">
+                  BK
+                </div>
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#00FF66] border-2 border-[#050505] shadow-[0_0_8px_#00FF66]" />
+              </div>
+
+              <div className="flex flex-col">
+                <span className="text-base sm:text-lg font-bold tracking-tighter text-[#F5F5F2] group-hover:text-[#61E7FF] transition-colors leading-none">
+                  BKA.
+                </span>
+                <span className="hidden md:inline-block text-[10px] font-mono tracking-widest text-[#888888] uppercase mt-0.5">
+                  Bharath Kumar Achari
+                </span>
+              </div>
             </button>
 
             {/* Center: Live Story Beat HUD Indicator */}
@@ -281,45 +301,65 @@ export function ProtocolNarrative() {
 
             {/* Right: Quick Chapter Links & Status */}
             <div className="flex items-center gap-6 sm:gap-8">
-              <nav className="hidden lg:flex items-center gap-6 text-xs font-mono uppercase tracking-widest text-[#888888]">
+              <nav className="hidden lg:flex items-center gap-5 text-xs font-mono uppercase tracking-widest text-[#888888]">
                 <a
                   href="#experience"
                   className="hover:text-[#61E7FF] transition-colors cursor-pointer"
                 >
                   Experience
                 </a>
-                <button
-                  onClick={() => jumpToStage(5)}
+                <a
+                  href="#work"
                   className="hover:text-[#F5F5F2] transition-colors cursor-pointer"
                 >
                   Work
-                </button>
-                <button
-                  onClick={() => jumpToStage(6)}
+                </a>
+                <a
+                  href="#teaching"
                   className="hover:text-[#F5F5F2] transition-colors cursor-pointer"
                 >
                   Teach
-                </button>
-                <button
-                  onClick={() => jumpToStage(4)}
+                </a>
+                <a
+                  href="#certifications"
+                  className="hover:text-[#61E7FF] transition-colors cursor-pointer"
+                >
+                  Certifications
+                </a>
+                <a
+                  href="#services"
                   className="hover:text-[#F5F5F2] transition-colors cursor-pointer"
                 >
-                  About
-                </button>
-                <button
-                  onClick={() => jumpToStage(9)}
+                  Services
+                </a>
+                <a
+                  href="#endorsements"
+                  className="hover:text-[#61E7FF] transition-colors cursor-pointer"
+                >
+                  Endorsements
+                </a>
+                <a
+                  href="#contact"
                   className="hover:text-[#61E7FF] transition-colors cursor-pointer"
                 >
                   Contact
-                </button>
+                </a>
               </nav>
               <button
                 onClick={() => jumpToStage(3)}
-                className="inline-flex items-center gap-2 text-[11px] font-mono tracking-wider text-[#F5F5F2]/90 hover:text-[#61E7FF] transition-colors px-2.5 py-1 bg-white/[0.03] border border-[#1e1e20] cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 text-[11px] font-mono tracking-wider text-[#F5F5F2]/90 hover:text-[#61E7FF] transition-colors px-2.5 py-1 bg-white/[0.03] border border-[#1e1e20] cursor-pointer"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#61E7FF] animate-ping" />
-                <span className="hidden sm:inline">BUILDING:</span>
+                <span>BUILDING:</span>
                 <span className="text-[#61E7FF] font-medium">AETHEL</span>
+              </button>
+
+              <button
+                onClick={() => setIsResumeModalOpen(true)}
+                className="inline-flex items-center gap-1.5 text-[11px] font-mono tracking-wider text-black bg-[#00F0FF] hover:bg-cyan-300 transition-all px-3 py-1.5 rounded font-semibold cursor-pointer shadow-[0_0_12px_rgba(0,240,255,0.25)] hover:shadow-[0_0_18px_rgba(0,240,255,0.45)]"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>CV / RESUME</span>
               </button>
             </div>
           </div>
@@ -328,7 +368,7 @@ export function ProtocolNarrative() {
         {/* ===================================================================== */}
         {/* MAIN NARRATIVE + 3D VIEWPORT                                          */}
         {/* ===================================================================== */}
-        <div className="relative z-30 flex-1 w-full max-w-[1440px] mx-auto px-6 sm:px-10 flex items-center justify-between overflow-hidden">
+        <div className="relative z-30 flex-1 w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-14 flex items-center justify-between overflow-hidden">
           {/* Vertical Progress Rail (Left Edge) */}
           <div className="hidden xl:flex flex-col items-center justify-center gap-2 mr-6 text-[9px] font-mono text-[#888888]">
             <div className="h-28 w-[1px] bg-gradient-to-b from-transparent via-[#61E7FF]/40 to-transparent relative">
@@ -907,8 +947,8 @@ export function ProtocolNarrative() {
         {/* ===================================================================== */}
         {/* BOTTOM SCRUBBER HUD & TELEMETRY FOOTER                                */}
         {/* ===================================================================== */}
-        <footer className="relative z-40 w-full bg-[#050505]/85 backdrop-blur-md border-t border-[#1e1e20]/70 py-3 sm:py-4 px-6 sm:px-10">
-          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
+        <footer className="relative z-40 w-full bg-[#050505]/85 backdrop-blur-md border-t border-[#1e1e20]/70 py-3 sm:py-4 px-6 sm:px-10 lg:px-14">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
             {/* Left: Interactive Stage Stepper */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="text-[10px] text-[#888888] mr-1 hidden md:inline">
@@ -943,6 +983,13 @@ export function ProtocolNarrative() {
           </div>
         </footer>
       </div>
+
+      {/* 1-Click Protocol CV Modal */}
+      <ResumeModal
+        isOpen={isResumeModalOpen}
+        onClose={() => setIsResumeModalOpen(false)}
+      />
     </div>
   );
 }
+

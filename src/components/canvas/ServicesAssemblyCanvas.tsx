@@ -158,7 +158,7 @@ export const ServicesAssemblyCanvas: React.FC<ServicesAssemblyCanvasProps> = ({
         id: "mod-contracts",
         label: "SMART CONTRACTS",
         category: "STYLUS / EVM",
-        serviceId: "srv-smart-contracts-dapps",
+        serviceId: "srv-smart-contracts",
         initialPos: new THREE.Vector3(-3.0, -1.6, 0.4),
         assembledPos: new THREE.Vector3(-1.4, -1.0, 0),
       },
@@ -166,15 +166,15 @@ export const ServicesAssemblyCanvas: React.FC<ServicesAssemblyCanvasProps> = ({
         id: "mod-infra",
         label: "RPC & INDEXER",
         category: "INFRASTRUCTURE",
-        serviceId: "srv-infrastructure-backend",
+        serviceId: "srv-blockchain-infrastructure",
         initialPos: new THREE.Vector3(3.0, -1.8, 0.2),
         assembledPos: new THREE.Vector3(1.4, -1.0, 0),
       },
       {
         id: "mod-auditor",
         label: "SECURITY INVARIANTS",
-        category: "AUDIT & OPTIMIZATION",
-        serviceId: "srv-auditing-gas-optimization",
+        category: "REVIEW & OPTIMIZATION",
+        serviceId: "srv-protocol-review",
         initialPos: new THREE.Vector3(0, 2.5, -1.2),
         assembledPos: new THREE.Vector3(0, 0, 0.3),
       },
@@ -334,7 +334,8 @@ export const ServicesAssemblyCanvas: React.FC<ServicesAssemblyCanvasProps> = ({
         const isAssociated =
           mod.serviceId === activeServiceId ||
           activeServiceId === "srv-protocol-engineering" ||
-          activeServiceId === "srv-technical-education";
+          activeServiceId === "srv-web3-applications" ||
+          activeServiceId === "srv-technical-architecture";
 
         const isExactMatch = mod.serviceId === activeServiceId;
         const isHovered = hoveredMesh === mod.aperture;

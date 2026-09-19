@@ -36,7 +36,7 @@ export const TeachingProtocolCanvas: React.FC<TeachingProtocolCanvasProps> = ({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.25;
     container.appendChild(renderer.domElement);
@@ -320,11 +320,17 @@ export const TeachingProtocolCanvas: React.FC<TeachingProtocolCanvasProps> = ({
     let animationFrameId: number;
     let clock = new THREE.Clock();
     let pulseT = 0;
+    let isVisible = true;
+    let isTabActive = typeof document !== "undefined" ? !document.hidden : true;
 
     const targetCameraPos = new THREE.Vector3(0, 1.2, 8.5);
     const targetCameraLook = new THREE.Vector3(0, 0, 0);
 
     const animate = () => {
+      if (!isVisible || !isTabActive) {
+        animationFrameId = 0;
+        return;
+      }
       animationFrameId = requestAnimationFrame(animate);
       const delta = clock.getDelta();
       const elapsed = clock.getElapsedTime();
@@ -388,6 +394,44 @@ export const TeachingProtocolCanvas: React.FC<TeachingProtocolCanvasProps> = ({
       renderer.render(scene, camera);
     };
 
+    const startAnimate = () => {
+      if (isVisible && isTabActive && !animationFrameId) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    const stopAnimate = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = 0;
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            startAnimate();
+          } else {
+            stopAnimate();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    const handleVisibilityChange = () => {
+      isTabActive = !document.hidden;
+      if (isTabActive && isVisible) {
+        startAnimate();
+      } else {
+        stopAnimate();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     animate();
 
     // 8. Resize Handler
@@ -403,10 +447,12 @@ export const TeachingProtocolCanvas: React.FC<TeachingProtocolCanvasProps> = ({
     window.addEventListener("resize", handleResize);
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("resize", handleResize);
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("click", handleClick);
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement.removeChild(renderer.domElement);
       }

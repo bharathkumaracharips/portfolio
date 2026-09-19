@@ -57,11 +57,10 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
     });
     renderer.setClearColor(0x000000, 0);
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.35;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.enabled = false;
     container.appendChild(renderer.domElement);
 
     // --- 2. SMARTWATCH GEOMETRIES & MATERIALS ---
@@ -715,9 +714,10 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
       const watchGroup = new THREE.Group();
 
       const dcanvas = document.createElement("canvas");
-      dcanvas.width = 1024;
-      dcanvas.height = 1280;
+      dcanvas.width = 512;
+      dcanvas.height = 640;
       const ctx = dcanvas.getContext("2d")!;
+      ctx.scale(0.5, 0.5);
       const dtexture = new THREE.CanvasTexture(dcanvas);
       dtexture.colorSpace = THREE.SRGBColorSpace;
       dtexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -985,9 +985,10 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
       terminalGroup.position.set(0, -10, 0);
 
       const termCanvas = document.createElement("canvas");
-      termCanvas.width = 1024;
-      termCanvas.height = 1440;
+      termCanvas.width = 512;
+      termCanvas.height = 720;
       const tctx = termCanvas.getContext("2d")!;
+      tctx.scale(0.5, 0.5);
       const termTexture = new THREE.CanvasTexture(termCanvas);
       termTexture.colorSpace = THREE.SRGBColorSpace;
       termTexture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -1286,9 +1287,15 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
 
     // --- 10. CONNECTED CHOREOGRAPHY ANIMATION LOOP ---
     const clock = new THREE.Clock();
-    let animFrameId: number;
+    let animFrameId: number = 0;
+    let isIntersecting = false;
+    let lastDisplayUpdateTime = 0;
 
     const animate = () => {
+      if (!isIntersecting || document.hidden) {
+        animFrameId = 0;
+        return;
+      }
       animFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
@@ -1303,9 +1310,13 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
       smoothProgress = THREE.MathUtils.lerp(smoothProgress, targetProgress, 0.07);
       const p = smoothProgress;
 
-      // Update watch faces and terminal displays
-      for (let i = 0; i < nodesList.length; i++) {
-        nodesList[i].updateDisplays(elapsedTime);
+      // Update watch faces and terminal displays (throttled to ~20fps for massive CPU/memory reduction)
+      const now = performance.now();
+      if (now - lastDisplayUpdateTime > 50) {
+        lastDisplayUpdateTime = now;
+        for (let i = 0; i < nodesList.length; i++) {
+          nodesList[i].updateDisplays(elapsedTime);
+        }
       }
 
       // Rotate Server Core & Halo
@@ -1543,7 +1554,37 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
       renderer.render(scene, camera);
     };
 
-    animate();
+    // IntersectionObserver to pause rendering when scrolled away
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const wasIntersecting = isIntersecting;
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting && !wasIntersecting && !document.hidden) {
+          clock.getDelta();
+          if (!animFrameId) {
+            animFrameId = requestAnimationFrame(animate);
+          }
+        } else if (!isIntersecting && animFrameId) {
+          cancelAnimationFrame(animFrameId);
+          animFrameId = 0;
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        if (animFrameId) {
+          cancelAnimationFrame(animFrameId);
+          animFrameId = 0;
+        }
+      } else if (isIntersecting && !animFrameId) {
+        clock.getDelta();
+        animFrameId = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const handleResize = () => {
       if (!container) return;
@@ -1552,12 +1593,14 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
       camera.aspect = newW / newH;
       camera.updateProjectionMatrix();
       renderer.setSize(newW, newH);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     };
 
     window.addEventListener("resize", handleResize);
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
@@ -1566,7 +1609,7 @@ export function Scene01SmartwatchExperience({ scrollProgress }: Scene01Props = {
       domElem.removeEventListener("mousedown", onMouseDown);
       domElem.removeEventListener("touchstart", onTouchStart);
       domElem.removeEventListener("touchmove", onTouchMove);
-      cancelAnimationFrame(animFrameId);
+      if (animFrameId) cancelAnimationFrame(animFrameId);
       renderer.dispose();
       caseGeo.dispose();
       bezelGeo.dispose();

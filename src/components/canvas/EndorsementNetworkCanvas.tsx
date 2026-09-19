@@ -42,7 +42,7 @@ export const EndorsementNetworkCanvas: React.FC<EndorsementNetworkCanvasProps> =
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
     container.appendChild(renderer.domElement);
@@ -251,8 +251,14 @@ export const EndorsementNetworkCanvas: React.FC<EndorsementNetworkCanvasProps> =
     let clock = new THREE.Clock();
     let targetRotationY = 0;
     let targetRotationX = 0;
+    let isVisible = true;
+    let isTabActive = typeof document !== "undefined" ? !document.hidden : true;
 
     const animate = () => {
+      if (!isVisible || !isTabActive) {
+        animationFrameId = 0;
+        return;
+      }
       animationFrameId = requestAnimationFrame(animate);
 
       const elapsedTime = clock.getElapsedTime();
@@ -313,10 +319,50 @@ export const EndorsementNetworkCanvas: React.FC<EndorsementNetworkCanvasProps> =
       renderer.render(scene, camera);
     };
 
+    const startAnimate = () => {
+      if (isVisible && isTabActive && !animationFrameId) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    const stopAnimate = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = 0;
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            startAnimate();
+          } else {
+            stopAnimate();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    const handleVisibilityChange = () => {
+      isTabActive = !document.hidden;
+      if (isTabActive && isVisible) {
+        startAnimate();
+      } else {
+        stopAnimate();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     animate();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
       container.removeEventListener("mousemove", handlePointerMove);
       container.removeEventListener("click", handleClick);

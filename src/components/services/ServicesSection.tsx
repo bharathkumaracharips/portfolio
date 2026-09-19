@@ -24,12 +24,15 @@ import {
   Sparkles,
 } from "lucide-react";
 
+import { SolidityCurriculumViewer } from "@/components/services/SolidityCurriculumViewer";
+
 export const ServicesSection: React.FC = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<string>(
     servicesData[0].id
   );
   const [activeTab, setActiveTab] = useState<"SPECS" | "PROCESS" | "ENGAGE">("SPECS");
   const [activeProcessIndex, setActiveProcessIndex] = useState<number>(0);
+  const [educationSubTab, setEducationSubTab] = useState<"CURRICULUM" | "SPECS">("CURRICULUM");
 
   const activeService: ServiceItem =
     servicesData.find((s) => s.id === selectedServiceId) || servicesData[0];
@@ -153,7 +156,9 @@ export const ServicesSection: React.FC = () => {
                     : "text-zinc-400 border-transparent hover:text-zinc-200"
                 }`}
               >
-                01 // SPECS & PROOF
+                {activeService.id === "srv-technical-education"
+                  ? "01 // COURSE & SPECS"
+                  : "01 // SPECS & PROOF"}
               </button>
               <button
                 onClick={() => setActiveTab("PROCESS")}
@@ -182,123 +187,154 @@ export const ServicesSection: React.FC = () => {
               {/* TAB 1: SPECIFICATIONS & VERIFIED PROOF */}
               {activeTab === "SPECS" && (
                 <div className="flex flex-col gap-6">
-                  {/* Service Title & Tagline */}
-                  <div className="flex flex-col gap-1.5 border-b border-white/10 pb-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono text-[#00F0FF]">
-                        MODULE // {activeService.number}
-                      </span>
-                      <span className="text-[10px] font-mono text-zinc-500">
-                        SHA-256 VERIFIED
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-bold text-white tracking-tight">
-                      {activeService.title}
-                    </h3>
-                    <p className="text-xs text-zinc-400 font-light leading-relaxed">
-                      {activeService.description}
-                    </p>
-                  </div>
-
-                  {/* Capabilities */}
-                  <div className="flex flex-col gap-2">
-                    <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <Cpu className="w-3.5 h-3.5 text-[#00F0FF]" />
-                      <span>CAPABILITIES</span>
-                    </span>
-                    <div className="grid grid-cols-1 gap-1.5">
-                      {activeService.capabilities.map((cap, i) => (
-                        <div
-                          key={i}
-                          className="flex items-start gap-2 p-2 rounded bg-white/[0.02] border border-white/5 text-xs text-zinc-300"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF66] shrink-0 mt-0.5" />
-                          <span>{cap}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Technologies */}
-                  <div className="flex flex-col gap-2">
-                    <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
-                      <FileCode2 className="w-3.5 h-3.5 text-[#00F0FF]" />
-                      <span>TECHNOLOGY STACK</span>
-                    </span>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      {activeService.technologies.map((tech, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 rounded bg-white/[0.03] border border-white/10 text-[11px] font-mono text-zinc-300"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Deliverables */}
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
-                      DELIVERABLES
-                    </span>
-                    <ul className="flex flex-col gap-1 text-xs text-zinc-300 list-disc list-inside font-light">
-                      {activeService.deliverables.map((deliv, i) => (
-                        <li key={i} className="leading-relaxed">
-                          <span className="text-zinc-400">{deliv}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Verified Proof in Work */}
-                  <div className="flex flex-col gap-2.5 pt-4 border-t border-white/10">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-mono text-[#00F0FF] uppercase tracking-wider flex items-center gap-1.5">
-                        <Layers className="w-3.5 h-3.5" />
-                        <span>VERIFIED PROOF IN WORK</span>
-                      </span>
+                  {activeService.id === "srv-technical-education" && (
+                    <div className="flex items-center justify-between p-1 bg-white/[0.03] rounded-lg border border-white/10">
                       <button
-                        onClick={scrollToWork}
-                        className="text-[11px] font-mono text-zinc-400 hover:text-white flex items-center gap-1 transition-colors"
+                        onClick={() => setEducationSubTab("CURRICULUM")}
+                        className={`flex-1 py-1.5 px-2 rounded-md text-xs font-mono font-semibold transition-all ${
+                          educationSubTab === "CURRICULUM"
+                            ? "bg-[#00F0FF]/15 text-[#00F0FF] border border-[#00F0FF]/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold"
+                            : "text-zinc-400 hover:text-zinc-200"
+                        }`}
                       >
-                        <span>MERKLE WORK</span>
-                        <ArrowUpRight className="w-3 h-3" />
+                        ⚡ 16-WEEK BKA SOLIDITY SYLLABUS
+                      </button>
+                      <button
+                        onClick={() => setEducationSubTab("SPECS")}
+                        className={`flex-1 py-1.5 px-2 rounded-md text-xs font-mono font-semibold transition-all ${
+                          educationSubTab === "SPECS"
+                            ? "bg-[#00F0FF]/15 text-[#00F0FF] border border-[#00F0FF]/40 shadow-[0_0_12px_rgba(0,240,255,0.15)] font-bold"
+                            : "text-zinc-400 hover:text-zinc-200"
+                        }`}
+                      >
+                        📋 SERVICE OVERVIEW
                       </button>
                     </div>
+                  )}
 
-                    <div className="flex flex-col gap-1.5">
-                      {activeService.relevantProjects.map((proj, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5 hover:border-white/15 transition-all"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF]" />
-                            <span className="text-xs font-semibold text-zinc-200">
-                              {proj.name}
-                            </span>
-                            <span className="text-zinc-600 font-mono text-[10px]">//</span>
-                            <span className="text-[10px] font-mono text-zinc-400">
-                              {proj.role}
-                            </span>
-                          </div>
-
-                          {proj.githubUrl && (
-                            <a
-                              href={proj.githubUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[11px] font-mono text-[#00F0FF] hover:underline flex items-center gap-1"
-                            >
-                              <span>CODE</span>
-                              <ArrowUpRight className="w-3 h-3" />
-                            </a>
-                          )}
+                  {activeService.id === "srv-technical-education" && educationSubTab === "CURRICULUM" ? (
+                    <SolidityCurriculumViewer />
+                  ) : (
+                    <>
+                      {/* Service Title & Tagline */}
+                      <div className="flex flex-col gap-1.5 border-b border-white/10 pb-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-mono text-[#00F0FF]">
+                            MODULE // {activeService.number}
+                          </span>
+                          <span className="text-[10px] font-mono text-zinc-500">
+                            SHA-256 VERIFIED
+                          </span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                        <h3 className="text-lg font-bold text-white tracking-tight">
+                          {activeService.title}
+                        </h3>
+                        <p className="text-xs text-zinc-400 font-light leading-relaxed">
+                          {activeService.description}
+                        </p>
+                      </div>
+
+                      {/* Capabilities */}
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <Cpu className="w-3.5 h-3.5 text-[#00F0FF]" />
+                          <span>CAPABILITIES</span>
+                        </span>
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {activeService.capabilities.map((cap, i) => (
+                            <div
+                              key={i}
+                              className="flex items-start gap-2 p-2 rounded bg-white/[0.02] border border-white/5 text-xs text-zinc-300"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF66] shrink-0 mt-0.5" />
+                              <span>{cap}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Technologies */}
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <FileCode2 className="w-3.5 h-3.5 text-[#00F0FF]" />
+                          <span>TECHNOLOGY STACK</span>
+                        </span>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {activeService.technologies.map((tech, i) => (
+                            <span
+                              key={i}
+                              className="px-2 py-0.5 rounded bg-white/[0.03] border border-white/10 text-[11px] font-mono text-zinc-300"
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Deliverables */}
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
+                          DELIVERABLES
+                        </span>
+                        <ul className="flex flex-col gap-1 text-xs text-zinc-300 list-disc list-inside font-light">
+                          {activeService.deliverables.map((deliv, i) => (
+                            <li key={i} className="leading-relaxed">
+                              <span className="text-zinc-400">{deliv}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Verified Proof in Work */}
+                      <div className="flex flex-col gap-2.5 pt-4 border-t border-white/10">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-mono text-[#00F0FF] uppercase tracking-wider flex items-center gap-1.5">
+                            <Layers className="w-3.5 h-3.5" />
+                            <span>VERIFIED PROOF IN WORK</span>
+                          </span>
+                          <button
+                            onClick={scrollToWork}
+                            className="text-[11px] font-mono text-zinc-400 hover:text-white flex items-center gap-1 transition-colors"
+                          >
+                            <span>MERKLE WORK</span>
+                            <ArrowUpRight className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                          {activeService.relevantProjects.map((proj, i) => (
+                            <div
+                              key={i}
+                              className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02] border border-white/5 hover:border-white/15 transition-all"
+                            >
+                              <div className="flex items-center gap-2">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF]" />
+                                <span className="text-xs font-semibold text-zinc-200">
+                                  {proj.name}
+                                </span>
+                                <span className="text-zinc-600 font-mono text-[10px]">//</span>
+                                <span className="text-[10px] font-mono text-zinc-400">
+                                  {proj.role}
+                                </span>
+                              </div>
+
+                              {proj.githubUrl && (
+                                <a
+                                  href={proj.githubUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-[11px] font-mono text-[#00F0FF] hover:underline flex items-center gap-1"
+                                >
+                                  <span>CODE</span>
+                                  <ArrowUpRight className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 

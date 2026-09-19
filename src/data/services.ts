@@ -207,22 +207,22 @@ export const servicesData: ServiceItem[] = [
     id: "srv-technical-education",
     number: "05",
     title: "TECHNICAL EDUCATION & MENTORSHIP",
-    tagline: "Engineering Curriculum Architecture, Live Workshops & Protocol Training",
+    tagline: "Blockchain from Basic to Advance in Solidity Course by BKA // 16-Week Engineering Curriculum",
     description:
-      "Deliver rigorous blockchain engineering training, step-by-step opcode breakdowns, and structured technical mentorship for development teams.",
+      "Comprehensive 16-week blockchain & smart contract engineering curriculum from EVM opcodes and Foundry invariant testing to DeFi protocol architecture and security auditing.",
     capabilities: [
-      "Comprehensive Blockchain Diploma Curriculum Design",
-      "Live EVM Opcodes & Substrate Runtime Coding Workshops",
-      "1-on-1 Developer Mentorship & Code Reviews",
-      "Technical Whitepaper & Architecture Breakdowns",
-      "Hands-On Gas Optimization Sandboxes & Lab Exercises",
+      "Module 1: Blockchain Foundations & Solidity Essentials (Weeks 1–4)",
+      "Module 2: Professional Smart Contract Development & Transient Storage (Weeks 5–8)",
+      "Module 3: Advanced Solidity, Protocols & DeFi Engineering (Weeks 9–12)",
+      "Module 4: Smart Contract Security, Auditing & 6-Track Capstone (Weeks 13–16)",
+      "Modern Solidity Toolchain Targeting Solidity 0.8.37 & Foundry Invariants",
     ],
-    technologies: ["Solidity", "Rust", "Substrate FRAME", "EVM Internals", "WASM Runtimes"],
+    technologies: ["Solidity 0.8.37", "Foundry", "Hardhat", "EVM Internals", "Yul / --via-ir", "Slither", "Echidna"],
     deliverables: [
-      "Structured curriculum roadmap with step-by-step milestones",
-      "Recorded technical lecture deep-dives and lecture archives",
-      "Interactive coding assignments and test harnesses",
-      "Comprehensive developer assessments & progress feedback",
+      "16-Week Structured Syllabus (Foundations, Pro Dev, DeFi Protocols, Security)",
+      "Production Tokenized Vaults (ERC-4626), AMM Pairs & Upgradeable Proxies",
+      "Automated Foundry & Hardhat Fuzz / Invariant Test Harnesses",
+      "Formal Security Audit Threat Model, Exploit PoCs & Capstone Project",
     ],
     relevantProjects: [
       {
@@ -236,7 +236,7 @@ export const servicesData: ServiceItem[] = [
         role: "Protocol Mentor & Educator",
       },
     ],
-    assemblyModules: ["KNOWLEDGE CORE", "OPCODE LAB", "PALLET WORKSHOP", "MENTORSHIP"],
+    assemblyModules: ["SOLIDITY 0.8.37", "FOUNDRY LAB", "SECURITY AUDIT", "CAPSTONE"],
   },
 ];
 

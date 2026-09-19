@@ -124,6 +124,29 @@ export function ProtocolNarrative() {
 
   useEffect(() => {
     let animationFrameId: number;
+    let isLoopRunning = false;
+
+    const updateLoop = () => {
+      const diff = targetFractionRef.current - currentFractionRef.current;
+      if (Math.abs(diff) > 0.0001) {
+        currentFractionRef.current += diff * 0.18;
+        setScrollFraction(currentFractionRef.current);
+        animationFrameId = requestAnimationFrame(updateLoop);
+      } else {
+        if (currentFractionRef.current !== targetFractionRef.current) {
+          currentFractionRef.current = targetFractionRef.current;
+          setScrollFraction(currentFractionRef.current);
+        }
+        isLoopRunning = false;
+      }
+    };
+
+    const requestUpdate = () => {
+      if (!isLoopRunning) {
+        isLoopRunning = true;
+        animationFrameId = requestAnimationFrame(updateLoop);
+      }
+    };
 
     const handleScroll = () => {
       if (!sectionContainerRef.current) return;
@@ -132,6 +155,7 @@ export function ProtocolNarrative() {
       if (total > 0) {
         const frac = Math.min(Math.max(-rect.top / total, 0), 1);
         targetFractionRef.current = frac;
+        requestUpdate();
       }
     };
 
@@ -141,6 +165,7 @@ export function ProtocolNarrative() {
         e.preventDefault();
         const next = Math.min(targetFractionRef.current + step * 0.5, 1);
         targetFractionRef.current = next;
+        requestUpdate();
         if (sectionContainerRef.current) {
           const total = sectionContainerRef.current.offsetHeight - window.innerHeight;
           window.scrollTo({ top: sectionContainerRef.current.offsetTop + next * total });
@@ -149,6 +174,7 @@ export function ProtocolNarrative() {
         e.preventDefault();
         const prev = Math.max(targetFractionRef.current - step * 0.5, 0);
         targetFractionRef.current = prev;
+        requestUpdate();
         if (sectionContainerRef.current) {
           const total = sectionContainerRef.current.offsetHeight - window.innerHeight;
           window.scrollTo({ top: sectionContainerRef.current.offsetTop + prev * total });
@@ -156,22 +182,12 @@ export function ProtocolNarrative() {
       }
     };
 
-    // Responsive, snappy damping loop
-    const updateLoop = () => {
-      animationFrameId = requestAnimationFrame(updateLoop);
-      const diff = targetFractionRef.current - currentFractionRef.current;
-      if (Math.abs(diff) > 0.0001) {
-        currentFractionRef.current += diff * 0.18;
-        setScrollFraction(currentFractionRef.current);
-      }
-    };
-
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("keydown", handleKeyDown);
-    updateLoop();
+    requestUpdate();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("keydown", handleKeyDown);
     };

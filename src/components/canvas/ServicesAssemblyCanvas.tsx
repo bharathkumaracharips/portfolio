@@ -36,7 +36,7 @@ export const ServicesAssemblyCanvas: React.FC<ServicesAssemblyCanvasProps> = ({
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
     container.appendChild(renderer.domElement);
@@ -315,8 +315,14 @@ export const ServicesAssemblyCanvas: React.FC<ServicesAssemblyCanvasProps> = ({
     let animationFrameId: number;
     const clock = new THREE.Clock();
     const targetCameraPos = new THREE.Vector3(0, 0.8, 8.5);
+    let isVisible = true;
+    let isTabActive = typeof document !== "undefined" ? !document.hidden : true;
 
     const animate = () => {
+      if (!isVisible || !isTabActive) {
+        animationFrameId = 0;
+        return;
+      }
       animationFrameId = requestAnimationFrame(animate);
       const delta = clock.getDelta();
       const elapsed = clock.getElapsedTime();
@@ -391,6 +397,44 @@ export const ServicesAssemblyCanvas: React.FC<ServicesAssemblyCanvasProps> = ({
       renderer.render(scene, camera);
     };
 
+    const startAnimate = () => {
+      if (isVisible && isTabActive && !animationFrameId) {
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    const stopAnimate = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = 0;
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            startAnimate();
+          } else {
+            stopAnimate();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    const handleVisibilityChange = () => {
+      isTabActive = !document.hidden;
+      if (isTabActive && isVisible) {
+        startAnimate();
+      } else {
+        stopAnimate();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     animate();
 
     // 8. Resize Handler
@@ -406,10 +450,12 @@ export const ServicesAssemblyCanvas: React.FC<ServicesAssemblyCanvasProps> = ({
     window.addEventListener("resize", handleResize);
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("resize", handleResize);
       container.removeEventListener("mousemove", handleMouseMove);
       container.removeEventListener("click", handleClick);
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       if (renderer.domElement.parentElement) {
         renderer.domElement.parentElement.removeChild(renderer.domElement);
       }

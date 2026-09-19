@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from "react";
 import gsap from "gsap";
 import { Certification } from "@/data/certifications";
 import { ArrowUpRight, Award, CheckCircle2, ChevronLeft, ChevronRight, ShieldCheck, ExternalLink } from "lucide-react";
+import { IssuerLogo, SkillBadge } from "@/components/certifications/CertificateLogos";
 
 export interface RadialGalleryProps {
   items: Certification[];
@@ -75,7 +76,7 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
       tabIndex={0}
       role="region"
       aria-label="Certifications Carousel"
-      className={`relative w-full h-[460px] sm:h-[500px] flex items-center justify-center overflow-hidden select-none outline-none focus:ring-1 focus:ring-[#00F0FF]/30 rounded-2xl bg-gradient-to-b from-[#050505] via-[#08080c] to-[#050505] border border-white/5 ${className}`}
+      className={`relative w-full h-[450px] sm:h-[490px] flex items-center justify-center overflow-hidden select-none outline-none focus:ring-1 focus:ring-[#00F0FF]/30 rounded-2xl bg-gradient-to-b from-[#050505] via-[#08080c] to-[#050505] border border-white/5 ${className}`}
       style={{ perspective: "1200px" }}
     >
       {/* Subtle Background Markings */}
@@ -85,15 +86,15 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
       </div>
 
       {/* Top Subtle Stage Indicator */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 pointer-events-none">
-        <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+      <div className="absolute top-3 left-4 z-20 flex items-center gap-2 pointer-events-none">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-pulse" />
         <span className="text-[10px] font-mono tracking-widest text-[#00F0FF]/80 uppercase">
-          ORBITAL ATTESTATION ARCHIVE // {currentIndex + 1} OF {totalItems}
+          ORBITAL ARCHIVE // {currentIndex + 1} OF {totalItems}
         </span>
       </div>
 
-      {/* Cards Stage (3D Orbital Arc) */}
-      <div className="relative w-full h-full flex items-center justify-center">
+      {/* Cards Stage (3D Orbital Arc with dedicated bottom gap for navigation) */}
+      <div className="relative w-full h-full flex items-center justify-center pb-12 sm:pb-14">
         {items.map((cert, idx) => {
           // Calculate offset relative to current active index
           let offset = idx - currentIndex;
@@ -104,7 +105,7 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
           const isImmediateNeighbor = Math.abs(offset) === 1;
 
           // 3D Orbital Transform parameters
-          const translateX = offset * (typeof window !== "undefined" && window.innerWidth < 640 ? 180 : 280);
+          const translateX = offset * (typeof window !== "undefined" && window.innerWidth < 640 ? 180 : 275);
           const translateZ = -Math.abs(offset) * 120;
           const rotateY = offset * -18;
           const scale = isActive ? 1.04 : 0.88;
@@ -127,14 +128,14 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
                 opacity,
                 transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
-              className={`absolute w-[240px] sm:w-[280px] h-[340px] sm:h-[370px] p-6 rounded-2xl border text-left flex flex-col justify-between cursor-pointer ${
+              className={`absolute w-[245px] sm:w-[280px] h-[335px] sm:h-[365px] p-4 sm:p-5 rounded-2xl border text-left flex flex-col justify-between cursor-pointer ${
                 isActive
                   ? "bg-[#0c0d14] border-[#00F0FF] shadow-[0_0_40px_rgba(0,240,255,0.25)] ring-1 ring-[#00F0FF]/40"
                   : "bg-[#08080c] border-white/10 hover:border-white/30 hover:opacity-80"
               }`}
             >
               {/* Card Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                 <div className="flex items-center gap-2">
                   <span
                     className={`w-2 h-2 rounded-full ${
@@ -151,31 +152,43 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
               </div>
 
               {/* Certificate Document Thumbnail Chamber */}
-              <div className="relative flex-1 flex flex-col justify-center my-3 p-4 rounded-xl bg-gradient-to-b from-white/[0.03] to-transparent border border-white/5 overflow-hidden">
-                <div className="absolute top-2 right-2">
-                  <Award
-                    className={`w-6 h-6 transition-colors ${
-                      isActive ? "text-[#00F0FF]/60" : "text-white/10"
-                    }`}
-                  />
+              <div className="relative flex-1 flex flex-col justify-between my-2 p-3.5 rounded-xl bg-gradient-to-b from-white/[0.03] to-transparent border border-white/5 overflow-hidden">
+                {/* Top-Right Company Logo */}
+                <div className="absolute top-2.5 right-2.5 z-10">
+                  <IssuerLogo issuer={cert.issuer} className="w-7 h-7" />
                 </div>
-                <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest mb-1.5 font-bold">
-                  {cert.category}
-                </span>
-                <h4
-                  className={`text-sm sm:text-base font-bold leading-snug tracking-tight transition-colors line-clamp-3 ${
-                    isActive ? "text-white" : "text-zinc-300"
-                  }`}
-                >
-                  {cert.name}
-                </h4>
-                <span className="text-xs font-mono text-zinc-400 mt-2 font-light truncate">
-                  {cert.issuer}
-                </span>
+
+                <div className="pr-8">
+                  <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest mb-0.5 font-bold block">
+                    {cert.category}
+                  </span>
+                  <h4
+                    className={`text-sm sm:text-base font-bold leading-snug tracking-tight transition-colors line-clamp-2 ${
+                      isActive ? "text-white" : "text-zinc-300"
+                    }`}
+                  >
+                    {cert.name}
+                  </h4>
+                  <span className="text-xs font-mono text-zinc-400 mt-1 font-light block truncate">
+                    {cert.issuer}
+                  </span>
+                </div>
+
+                {/* Skill Logos below issuer */}
+                <div className="pt-2 mt-1.5 border-t border-white/5 flex flex-wrap items-center gap-1">
+                  {cert.skills.slice(0, 3).map((skill, sIdx) => (
+                    <SkillBadge key={sIdx} skill={skill} />
+                  ))}
+                  {cert.skills.length > 3 && (
+                    <span className="text-[9px] font-mono text-zinc-500 px-1.5 py-0.5 rounded bg-white/[0.02] border border-white/5">
+                      +{cert.skills.length - 3}
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Bottom Metadata & Action */}
-              <div className="flex items-center justify-between pt-3 border-t border-white/5 text-[11px] font-mono">
+              <div className="flex items-center justify-between pt-2.5 border-t border-white/5 text-[11px] font-mono">
                 <span className="text-zinc-500 truncate max-w-[140px]">
                   ID: {cert.credentialId}
                 </span>

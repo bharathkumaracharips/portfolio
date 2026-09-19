@@ -30,7 +30,7 @@ export function WorkPreviewCanvas({ category }: WorkPreviewCanvasProps) {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
     renderer.setSize(W, H);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.5;
     el.appendChild(renderer.domElement);
@@ -288,8 +288,14 @@ export function WorkPreviewCanvas({ category }: WorkPreviewCanvasProps) {
     allScenes.forEach((g, i) => { g.scale.setScalar(i === catIdx[categoryRef.current] ? 1 : 0.001); g.visible = i === catIdx[categoryRef.current]; });
 
     const clock = new THREE.Clock();
+    let isVisible = true;
+    let isTabActive = typeof document !== "undefined" ? !document.hidden : true;
 
     const animate = () => {
+      if (!isVisible || !isTabActive) {
+        rafId = 0;
+        return;
+      }
       rafId = requestAnimationFrame(animate);
       const t = clock.getElapsedTime();
 
@@ -347,10 +353,51 @@ export function WorkPreviewCanvas({ category }: WorkPreviewCanvasProps) {
 
       renderer.render(scene, camera);
     };
+
+    const startAnimate = () => {
+      if (isVisible && isTabActive && !rafId) {
+        rafId = requestAnimationFrame(animate);
+      }
+    };
+
+    const stopAnimate = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            startAnimate();
+          } else {
+            stopAnimate();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(el);
+
+    const handleVisibilityChange = () => {
+      isTabActive = !document.hidden;
+      if (isTabActive && isVisible) {
+        startAnimate();
+      } else {
+        stopAnimate();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     animate();
 
     return () => {
-      cancelAnimationFrame(rafId);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
       renderer.dispose();

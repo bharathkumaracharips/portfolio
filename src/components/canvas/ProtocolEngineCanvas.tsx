@@ -38,12 +38,11 @@ export function ProtocolEngineCanvas({ scrollProgress }: ProtocolEngineCanvasPro
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.35;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    renderer.shadowMap.enabled = false;
     container.appendChild(renderer.domElement);
 
     // 2. LIGHTING RIG
@@ -1553,8 +1552,14 @@ export function ProtocolEngineCanvas({ scrollProgress }: ProtocolEngineCanvasPro
 
     // 5. ANIMATION & RENDER LOOP
     const startTime = performance.now();
+    let isVisible = true;
+    let isTabActive = typeof document !== "undefined" ? !document.hidden : true;
 
     function render() {
+      if (!isVisible || !isTabActive) {
+        reqId = 0;
+        return;
+      }
       reqId = requestAnimationFrame(render);
       const elapsed = (performance.now() - startTime) * 0.001;
 
@@ -1793,6 +1798,44 @@ export function ProtocolEngineCanvas({ scrollProgress }: ProtocolEngineCanvasPro
       renderer.render(scene, camera);
     }
 
+    const startRenderLoop = () => {
+      if (isVisible && isTabActive && !reqId) {
+        reqId = requestAnimationFrame(render);
+      }
+    };
+
+    const stopRenderLoop = () => {
+      if (reqId) {
+        cancelAnimationFrame(reqId);
+        reqId = 0;
+      }
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            startRenderLoop();
+          } else {
+            stopRenderLoop();
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    const handleVisibilityChange = () => {
+      isTabActive = !document.hidden;
+      if (isTabActive && isVisible) {
+        startRenderLoop();
+      } else {
+        stopRenderLoop();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     render();
 
     function handleResize() {
@@ -1807,10 +1850,12 @@ export function ProtocolEngineCanvas({ scrollProgress }: ProtocolEngineCanvasPro
     window.addEventListener("resize", handleResize);
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mousemove", handleMouseMove);
-      cancelAnimationFrame(reqId);
+      if (reqId) cancelAnimationFrame(reqId);
       masterTimeline.kill();
       renderer.dispose();
       if (container.contains(renderer.domElement)) {

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Attestations & Certifications | Bharath Kumar Achari",
   description:
-    "Formal records of continuous technical learning in blockchain protocol architecture, AWS solutions architecture, and Kubernetes administration.",
+    "Formal records of technical qualifications in EVM chain architecture, Web3 smart contracts, Microsoft Azure cloud computing, cybersecurity, and Java systems.",
 };
 
 export default function CertificationsPage() {

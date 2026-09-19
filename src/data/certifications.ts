@@ -4,9 +4,17 @@ export interface Certification {
   name: string;
   issuer: string;
   date: string;
-  category: "BLOCKCHAIN & PROTOCOL" | "CLOUD & ARCHITECTURE" | "INFRASTRUCTURE & DEVOPS";
+  issueDateFull?: string;
+  category:
+    | "BLOCKCHAIN & PROTOCOL"
+    | "CLOUD & ARCHITECTURE"
+    | "CYBERSECURITY & SYSTEMS"
+    | "SOFTWARE & PROGRAMMING"
+    | "INFRASTRUCTURE & DEVOPS";
   credentialId: string;
   verificationUrl?: string;
+  verificationNote?: string;
+  documentFile?: string;
   skills: string[];
   description: string;
   documentType: "DIGITAL CREDENTIAL" | "OFFICIAL CERTIFICATE" | "ACCREDITATION";
@@ -16,61 +24,114 @@ export const certificationsData: Certification[] = [
   {
     id: "cert-01",
     code: "CERT / 001",
-    name: "Certified Blockchain Security & Protocol Architect",
-    issuer: "Blockchain Protocol Institute",
-    date: "2024",
+    name: "EVM Chain Certification",
+    issuer: "Alchemy University",
+    date: "2025",
+    issueDateFull: "2025",
     category: "BLOCKCHAIN & PROTOCOL",
-    credentialId: "BPI-ARCH-98240",
-    verificationUrl: "https://verify.blockchaininstitute.org/BPI-ARCH-98240",
+    credentialId: "AU-EVM-2025",
+    verificationUrl: "https://university.alchemy.com",
     skills: [
-      "Consensus Security",
-      "Parallel EVM Execution",
-      "Zero-Knowledge Proof Invariants",
-      "P2P Network Topologies",
-      "State Trie Auditing",
+      "Blockchain Cryptography",
+      "Ethereum Node API",
+      "Smart Contract Development",
+      "Solidity",
+      "Ethereum",
+      "EVM",
     ],
     description:
-      "Formal technical accreditation certifying deep proficiency in distributed consensus security, deterministic WASM runtimes, parallel transaction concurrency models, and low-level bytecode auditing.",
+      "Official accreditation from Alchemy University certifying deep technical proficiency in Ethereum Virtual Machine architecture, blockchain cryptography, Ethereum JSON-RPC / node APIs, and smart contract development in Solidity.",
     documentType: "OFFICIAL CERTIFICATE",
   },
   {
     id: "cert-02",
     code: "CERT / 002",
-    name: "AWS Certified Solutions Architect – Professional",
-    issuer: "Amazon Web Services",
-    date: "2023",
-    category: "CLOUD & ARCHITECTURE",
-    credentialId: "AWS-PSA-771942",
-    verificationUrl: "https://aws.amazon.com/verification/AWS-PSA-771942",
+    name: "Transition to Web3 – Course 3 | How Smart Contracts Work",
+    issuer: "Rise In",
+    date: "2025",
+    issueDateFull: "June 2025",
+    category: "BLOCKCHAIN & PROTOCOL",
+    credentialId: "RISEIN-W3C3-2025",
+    verificationUrl: "https://www.risein.com",
+    documentFile:
+      "Certificates-Transition to Web3 - Course 3 _ How Smart Contracts Work-PS BHARATH KUMAR ACHARI.pdf",
     skills: [
-      "Multi-Region Cloud Topology",
-      "High-Availability RPC Clusters",
-      "K8s Auto-scaling",
-      "Disaster Recovery Systems",
-      "Zero-Downtime Migration",
+      "Web3",
+      "Smart Contracts",
+      "Blockchain",
+      "Ethereum",
+      "Solidity Execution",
+      "DApp Interactions",
     ],
     description:
-      "Advanced professional certification validating enterprise-grade distributed cloud architecture, multi-region fault tolerance, zero-downtime ledger deployments, and high-throughput network engineering.",
-    documentType: "DIGITAL CREDENTIAL",
+      "Technical credential awarded for successfully completing all lessons, projects, and practical smart contract implementations covering EVM execution mechanics, state storage, and decentralized protocol interaction.",
+    documentType: "OFFICIAL CERTIFICATE",
   },
   {
     id: "cert-03",
     code: "CERT / 003",
-    name: "Certified Kubernetes Administrator (CKA)",
-    issuer: "Cloud Native Computing Foundation (CNCF)",
-    date: "2023",
-    category: "INFRASTRUCTURE & DEVOPS",
-    credentialId: "CKA-2309-8814",
-    verificationUrl: "https://www.cncf.io/certification/cka/verify/CKA-2309-8814",
+    name: "Microsoft Certified: Azure Fundamentals",
+    issuer: "Microsoft",
+    date: "2024",
+    issueDateFull: "May 8, 2024",
+    category: "CLOUD & ARCHITECTURE",
+    credentialId: "MSFT-AZ900-MAY2024",
+    verificationUrl: "https://learn.microsoft.com",
+    verificationNote: "Online verification available through Microsoft Learn",
     skills: [
-      "Container Orchestration",
-      "StatefulSet Node Clusters",
-      "Ingress Routing & TLS",
-      "Cluster Storage & CSI",
-      "Prometheus Telemetry",
+      "Microsoft Azure",
+      "Cloud Computing",
+      "Cloud Fundamentals",
+      "Azure Architecture & Services",
+      "Cloud Security & Governance",
     ],
     description:
-      "Hands-on performance-based certification establishing mastery in deploying, configuring, and managing resilient multi-node Kubernetes clusters for high-availability validator and RPC node fleets.",
+      "Official Microsoft credential validating foundational knowledge of cloud concepts, core Azure architectural components, cloud compute, storage, networking, security, privacy, and compliance governance.",
+    documentType: "DIGITAL CREDENTIAL",
+  },
+  {
+    id: "cert-04",
+    code: "CERT / 004",
+    name: "Introduction to Cyber Security",
+    issuer: "Infosys Springboard",
+    date: "2024",
+    issueDateFull: "May 7, 2024",
+    category: "CYBERSECURITY & SYSTEMS",
+    credentialId: "INFOSYS-CS-MAY2024",
+    verificationUrl: "https://springboard.infosys.com",
+    verificationNote: "Official certificate with QR-code verification",
+    documentFile: "infosys.pdf",
+    skills: [
+      "Cybersecurity",
+      "Information Security",
+      "Security Fundamentals",
+      "Threat Analysis & Mitigation",
+      "Network & System Defense",
+    ],
+    description:
+      "Professional cybersecurity certification from Infosys Springboard establishing core competencies in information security, threat vectors, cryptographic fundamentals, and defensive security architectures with QR-code verification.",
+    documentType: "OFFICIAL CERTIFICATE",
+  },
+  {
+    id: "cert-05",
+    code: "CERT / 005",
+    name: "Java Course for Placements",
+    issuer: "CodeTantra.com",
+    date: "2024",
+    issueDateFull: "January 31, 2024",
+    category: "SOFTWARE & PROGRAMMING",
+    credentialId: "CODETANTRA-JAVA-2024",
+    verificationUrl: "https://codetantra.com",
+    skills: [
+      "Java",
+      "Object-Oriented Programming",
+      "Programming Fundamentals",
+      "Data Structures & Algorithms",
+      "JVM Architecture",
+    ],
+    description:
+      "Comprehensive software engineering qualification from CodeTantra certifying hands-on proficiency in Java, object-oriented programming (OOP) paradigms, core data structures, algorithms, and placement-level problem solving.",
     documentType: "OFFICIAL CERTIFICATE",
   },
 ];
+

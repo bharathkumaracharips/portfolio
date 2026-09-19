@@ -14,6 +14,7 @@ import {
   Tag,
   FileText,
 } from "lucide-react";
+import { IssuerLogo, SkillBadge } from "./CertificateLogos";
 
 interface CertificationDetailViewProps {
   cert: Certification;
@@ -64,28 +65,38 @@ export const CertificationDetailView: React.FC<CertificationDetailViewProps> = (
                 {cert.documentType}
               </span>
             </div>
-            <span className="text-[10px] font-mono text-zinc-500">
-              SHA-256 RECORD
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-mono text-zinc-500">
+                SHA-256 RECORD
+              </span>
+              <IssuerLogo issuer={cert.issuer} className="w-7 h-7" />
+            </div>
           </div>
 
           {/* Core Document Certificate Graphic */}
           <div className="relative z-10 flex flex-col items-center justify-center text-center my-6 gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#00F0FF]/10 border border-[#00F0FF]/40 flex items-center justify-center text-[#00F0FF] shadow-[0_0_15px_rgba(0,240,255,0.2)]">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-full bg-[#00F0FF]/10 border border-[#00F0FF]/40 flex items-center justify-center text-[#00F0FF] shadow-[0_0_15px_rgba(0,240,255,0.2)]">
+              <ShieldCheck className="w-7 h-7" />
             </div>
 
             <span className="text-[10px] font-mono tracking-widest text-[#00F0FF] uppercase">
               {cert.category}
             </span>
 
-            <h3 className="text-xl sm:text-2xl font-bold font-sans text-white tracking-tight leading-snug">
+            <h3 className="text-xl sm:text-2xl font-bold font-sans text-white tracking-tight leading-snug max-w-md">
               {cert.name}
             </h3>
 
             <span className="text-xs font-mono text-zinc-400">
-              ISSUED TO BHARATH KUMAR ACHARI • {cert.issuer}
+              ISSUED TO P S BHARATH KUMAR ACHARI • {cert.issuer}
             </span>
+
+            {/* Skill Icons Strip inside Document graphic */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-2 pt-2 border-t border-white/5 max-w-sm">
+              {cert.skills.map((skill, i) => (
+                <SkillBadge key={i} skill={skill} />
+              ))}
+            </div>
           </div>
 
           {/* Document Viewer Action Button */}
@@ -98,7 +109,7 @@ export const CertificationDetailView: React.FC<CertificationDetailViewProps> = (
               className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-xs font-mono text-[#00F0FF] border border-white/10 hover:border-[#00F0FF]/40 transition-colors cursor-pointer"
             >
               <Maximize2 className="w-3.5 h-3.5" />
-              <span>VIEW DOCUMENT</span>
+              <span>VIEW FULL CERTIFICATE</span>
             </button>
           </div>
         </div>
@@ -134,7 +145,9 @@ export const CertificationDetailView: React.FC<CertificationDetailViewProps> = (
                   <Calendar className="w-3 h-3 text-[#00F0FF]" />
                   <span>ISSUED DATE</span>
                 </span>
-                <span className="text-zinc-200 font-semibold">{cert.date}</span>
+                <span className="text-zinc-200 font-semibold">
+                  {cert.issueDateFull || cert.date}
+                </span>
               </div>
 
               <div className="p-3 rounded-lg bg-white/[0.02] border border-white/5 flex flex-col gap-1">
@@ -154,6 +167,29 @@ export const CertificationDetailView: React.FC<CertificationDetailViewProps> = (
               </div>
             </div>
 
+            {/* Verification Note or Document File Indicator */}
+            {(cert.verificationNote || cert.documentFile) && (
+              <div className="flex flex-col gap-2">
+                {cert.verificationNote && (
+                  <div className="p-3 rounded-lg bg-[#00F0FF]/[0.04] border border-[#00F0FF]/20 flex items-center gap-2 text-xs font-mono text-cyan-200">
+                    <CheckCircle2 className="w-4 h-4 text-[#00F0FF] shrink-0" />
+                    <span>{cert.verificationNote}</span>
+                  </div>
+                )}
+                {cert.documentFile && (
+                  <div className="p-3 rounded-lg bg-white/[0.02] border border-white/10 flex items-center justify-between text-xs font-mono text-zinc-400">
+                    <span className="flex items-center gap-2 truncate">
+                      <FileText className="w-4 h-4 text-[#00FF66] shrink-0" />
+                      <span className="truncate max-w-[260px] sm:max-w-xs">{cert.documentFile}</span>
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-[#00FF66] border border-emerald-500/20 font-semibold">
+                      ARCHIVE PDF
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Verified Skills */}
             <div className="flex flex-col gap-2">
               <span className="text-xs font-mono text-zinc-400 uppercase tracking-wider">
@@ -161,12 +197,7 @@ export const CertificationDetailView: React.FC<CertificationDetailViewProps> = (
               </span>
               <div className="flex flex-wrap items-center gap-1.5">
                 {cert.skills.map((skill, i) => (
-                  <span
-                    key={i}
-                    className="px-2.5 py-1 rounded bg-white/[0.03] border border-white/10 text-xs font-mono text-zinc-300"
-                  >
-                    ✓ {skill}
-                  </span>
+                  <SkillBadge key={i} skill={skill} />
                 ))}
               </div>
             </div>

@@ -3,6 +3,7 @@
 import React from "react";
 import { Certification } from "@/data/certifications";
 import { ArrowUpRight, ExternalLink, ShieldCheck } from "lucide-react";
+import { IssuerLogo } from "./CertificateLogos";
 
 interface CertificationArchiveListProps {
   items: Certification[];
@@ -42,7 +43,7 @@ export const CertificationArchiveList: React.FC<CertificationArchiveListProps> =
               <th className="py-3 px-4 font-semibold">CODE</th>
               <th className="py-3 px-4 font-semibold">CREDENTIAL TITLE</th>
               <th className="py-3 px-4 font-semibold">ISSUER</th>
-              <th className="py-3 px-4 font-semibold">YEAR</th>
+              <th className="py-3 px-4 font-semibold">DATE</th>
               <th className="py-3 px-4 font-semibold">CATEGORY</th>
               <th className="py-3 px-4 font-semibold text-right">ACTIONS</th>
             </tr>
@@ -67,10 +68,13 @@ export const CertificationArchiveList: React.FC<CertificationArchiveListProps> =
                     {cert.name}
                   </td>
                   <td className="py-3.5 px-4 text-zinc-400 whitespace-nowrap">
-                    {cert.issuer}
+                    <div className="flex items-center gap-2">
+                      <IssuerLogo issuer={cert.issuer} className="w-5 h-5 shrink-0" />
+                      <span>{cert.issuer}</span>
+                    </div>
                   </td>
-                  <td className="py-3.5 px-4 text-zinc-400 whitespace-nowrap">
-                    {cert.date}
+                  <td className="py-3.5 px-4 text-zinc-300 whitespace-nowrap">
+                    {cert.issueDateFull || cert.date}
                   </td>
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     <span className="px-2 py-0.5 rounded bg-white/[0.03] border border-white/5 text-[10px] text-zinc-400">
@@ -78,13 +82,26 @@ export const CertificationArchiveList: React.FC<CertificationArchiveListProps> =
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-center justify-end gap-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenDocumentViewer(cert);
+                        }}
+                        className="text-xs text-zinc-400 hover:text-[#00FF66] flex items-center gap-1 transition-colors"
+                        title="View Certificate Document"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-[#00FF66]" />
+                        <span>VIEW</span>
+                      </button>
+
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           onSelect(cert);
                         }}
                         className="text-xs text-[#00F0FF] hover:underline flex items-center gap-1 font-semibold"
+                        title="Inspect Full Credential Details"
                       >
                         <span>INSPECT</span>
                         <ArrowUpRight className="w-3 h-3" />
@@ -96,7 +113,7 @@ export const CertificationArchiveList: React.FC<CertificationArchiveListProps> =
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="text-xs text-zinc-400 hover:text-white flex items-center gap-1 ml-2"
+                          className="text-xs text-zinc-400 hover:text-white flex items-center gap-1"
                         >
                           <span>VERIFY</span>
                           <ExternalLink className="w-3 h-3" />

@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { Certification } from "@/data/certifications";
 import { X, ExternalLink, Award, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { IssuerLogo, SkillBadge } from "./CertificateLogos";
 
 interface CertificationDocumentViewerProps {
   cert: Certification | null;
@@ -32,18 +33,21 @@ export const CertificationDocumentViewer: React.FC<CertificationDocumentViewerPr
       <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#090a0f] border border-white/20 p-6 sm:p-8 shadow-[0_0_60px_rgba(0,0,0,0.9)] flex flex-col gap-6 text-left">
         {/* Header Bar */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="w-2 h-2 rounded-full bg-[#00FF66] animate-pulse" />
             <span className="text-xs font-mono font-bold text-white uppercase tracking-wider">
               {cert.code} // {cert.documentType}
             </span>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-3">
+            <IssuerLogo issuer={cert.issuer} className="w-7 h-7" />
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Certificate Framing Chamber */}
@@ -54,8 +58,11 @@ export const CertificationDocumentViewer: React.FC<CertificationDocumentViewerPr
           </div>
 
           <div className="relative z-10 flex flex-col items-center gap-4 max-w-lg">
-            <div className="w-12 h-12 rounded-full bg-[#00F0FF]/10 border border-[#00F0FF]/40 flex items-center justify-center text-[#00F0FF] shadow-[0_0_20px_rgba(0,240,255,0.2)]">
-              <ShieldCheck className="w-6 h-6" />
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#00F0FF]/10 border border-[#00F0FF]/40 flex items-center justify-center text-[#00F0FF] shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <IssuerLogo issuer={cert.issuer} className="w-12 h-12" />
             </div>
 
             <span className="text-[10px] font-mono tracking-widest text-[#00F0FF] uppercase font-bold">
@@ -66,34 +73,46 @@ export const CertificationDocumentViewer: React.FC<CertificationDocumentViewerPr
               {cert.name}
             </h3>
 
-            <div className="flex items-center gap-2 text-xs font-mono text-zinc-400">
+            <div className="flex flex-wrap items-center justify-center gap-2 text-xs font-mono text-zinc-400">
+              <span>RECIPIENT:</span>
+              <span className="text-[#00FF66] font-semibold">P S BHARATH KUMAR ACHARI</span>
+              <span className="text-zinc-600">•</span>
               <span>ISSUED BY:</span>
               <span className="text-zinc-200 font-semibold">{cert.issuer}</span>
               <span className="text-zinc-600">•</span>
-              <span>YEAR:</span>
-              <span className="text-zinc-200">{cert.date}</span>
+              <span>DATE:</span>
+              <span className="text-zinc-200">{cert.issueDateFull || cert.date}</span>
             </div>
 
             <p className="text-xs text-zinc-300 font-light leading-relaxed mt-2 border-t border-b border-white/5 py-3">
               {cert.description}
             </p>
 
-            {/* Verified Skills Grid */}
+            {/* Verified Skills Grid with skill logos */}
             <div className="flex flex-wrap items-center justify-center gap-1.5 pt-2">
               {cert.skills.map((skill, i) => (
-                <span
-                  key={i}
-                  className="px-2.5 py-1 rounded bg-white/[0.04] border border-white/10 text-[11px] font-mono text-zinc-300"
-                >
-                  ✓ {skill}
-                </span>
+                <SkillBadge key={i} skill={skill} />
               ))}
             </div>
 
-            {/* Credential ID Badge */}
-            <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.03] border border-white/10 text-xs font-mono text-zinc-400 mt-2">
-              <span className="text-zinc-500">ID:</span>
-              <span className="text-zinc-200">{cert.credentialId}</span>
+            {/* Credential ID & Notes */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-2">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-white/[0.03] border border-white/10 text-xs font-mono text-zinc-400">
+                <span className="text-zinc-500">ID:</span>
+                <span className="text-zinc-200">{cert.credentialId}</span>
+              </div>
+              {cert.verificationNote && (
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-cyan-950/30 border border-cyan-500/20 text-xs font-mono text-cyan-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#00F0FF]" />
+                  <span>{cert.verificationNote}</span>
+                </div>
+              )}
+              {cert.documentFile && (
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-950/30 border border-emerald-500/20 text-xs font-mono text-emerald-300">
+                  <Award className="w-3.5 h-3.5 text-[#00FF66]" />
+                  <span>{cert.documentFile}</span>
+                </div>
+              )}
             </div>
           </div>
         </div>

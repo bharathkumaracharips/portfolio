@@ -73,6 +73,109 @@ export const courseCategoryList: CourseCategoryMeta[] = [
   },
 ];
 
+export interface CourseCapability {
+  number: string;
+  role: string; // "Design", "Engineer", "Secure", "Architect", "Ship"
+  title: string;
+  description: string;
+}
+
+export interface CourseJourneyStage {
+  stageNumber: string;
+  stageName: string;
+  weeks: string;
+  objective: string;
+  technologies: string[];
+  project: string;
+  competency: string;
+}
+
+export interface CourseProject {
+  number: string;
+  title: string;
+  weeks: string;
+  type: string;
+  learn: string;
+  build: string;
+  prove: string;
+  tech: string[];
+}
+
+export interface CourseAudience {
+  idealFor: string[];
+  notIdealFor: string[];
+}
+
+export interface CoursePrerequisites {
+  required: string[];
+  helpful: string[];
+  notRequired: string[];
+}
+
+export interface CourseMentorshipStep {
+  step: string;
+  title: string;
+  action: string;
+  deliverable: string;
+  detail: string;
+}
+
+export interface CourseCapstone {
+  title: string;
+  subtitle: string;
+  description: string;
+  systemComponents: {
+    name: string;
+    role: string;
+  }[];
+  qualityGate: string;
+  deliverables: {
+    number: string;
+    title: string;
+    description: string;
+  }[];
+}
+
+export interface ArchitectureNodeDetail {
+  title: string;
+  role: string;
+  concepts: string[];
+}
+
+export interface ArchitectureNode {
+  id: string;
+  label: string;
+  sublabel: string;
+  category: "input" | "process" | "storage" | "output" | "runtime";
+  detail: ArchitectureNodeDetail;
+}
+
+export interface CourseArchitectureDiagramData {
+  title: string;
+  subtitle: string;
+  nodes: ArchitectureNode[];
+}
+
+export interface CourseInspectionDetail {
+  courseId: string;
+  capabilities: CourseCapability[];
+  journey: CourseJourneyStage[];
+  projects: CourseProject[];
+  audience: CourseAudience;
+  prerequisites: CoursePrerequisites;
+  mentorshipModel: CourseMentorshipStep[];
+  capstone: CourseCapstone;
+  architectureDiagram: CourseArchitectureDiagramData;
+  moduleLabs?: Record<
+    string,
+    {
+      lab: { title: string; subtitle: string; description: string };
+      prove: string;
+      skillsAcquired: string[];
+    }
+  >;
+}
+
 export interface CourseCatalogItem {
   id: string;
   number: string;

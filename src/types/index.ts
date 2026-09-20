@@ -117,6 +117,7 @@ export interface Endorsement {
     organization?: string;
     avatarInitials?: string;
     linkedinUrl?: string;
+    image?: string;
   };
   category: "CLIENT" | "ENGINEERING" | "MENTORSHIP";
   year: string;

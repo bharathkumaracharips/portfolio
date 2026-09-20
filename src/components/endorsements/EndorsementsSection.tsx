@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { endorsementsData } from "@/data/endorsements";
+import { scrollReelTestimonialsData } from "@/data/endorsements";
 import { EndorsementsHero } from "./EndorsementsHero";
 import { EndorsementFilters, FilterCategory } from "./EndorsementFilters";
-import { EndorsementCard } from "./EndorsementCard";
+import { ScrollReelTestimonials } from "@/components/ui/scroll-reel-testimonials";
 import { EndorsementsCTA } from "./EndorsementsCTA";
 
 interface EndorsementsSectionProps {
@@ -16,9 +16,9 @@ export const EndorsementsSection: React.FC<EndorsementsSectionProps> = ({
 }) => {
   const [activeCategory, setActiveCategory] = useState<FilterCategory>("ALL");
 
-  const filteredEndorsements = useMemo(() => {
-    if (activeCategory === "ALL") return endorsementsData;
-    return endorsementsData.filter((e) => e.category === activeCategory);
+  const filteredTestimonials = useMemo(() => {
+    if (activeCategory === "ALL") return scrollReelTestimonialsData;
+    return scrollReelTestimonialsData.filter((e) => e.category === activeCategory);
   }, [activeCategory]);
 
   return (
@@ -39,19 +39,18 @@ export const EndorsementsSection: React.FC<EndorsementsSectionProps> = ({
           />
         </div>
 
-        {/* 3. Review Cards (2-column desktop grid, 1-column mobile) */}
-        {filteredEndorsements.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-            {filteredEndorsements.map((endorsement, index) => (
-              <EndorsementCard
-                key={endorsement.id}
-                endorsement={endorsement}
-                index={index}
-              />
-            ))}
+        {/* 3. Counter-rotating Scroll Reel Testimonial Showcase */}
+        {filteredTestimonials.length > 0 ? (
+          <div className="w-full flex justify-center py-2">
+            <ScrollReelTestimonials
+              key={activeCategory}
+              testimonials={filteredTestimonials}
+              charStaggerMs={5}
+              className="w-full"
+            />
           </div>
         ) : (
-          /* Quiet empty state (e.g. for MENTORSHIP when active cohorts are in flight) */
+          /* Empty state for categories with cohorts in flight */
           <div className="rounded-xl border border-white/[0.06] bg-[#0c0c10] p-10 text-center flex flex-col items-center justify-center gap-3">
             <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest">
               ACTIVE COHORTS IN PROGRESS

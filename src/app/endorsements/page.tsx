@@ -13,8 +13,8 @@ export default function EndorsementsPage() {
   return (
     <main className="relative w-full min-h-screen bg-[#08080c] text-white">
       {/* Return navigation bar */}
-      <div className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#08080c]/90 backdrop-blur-md px-6 sm:px-10 lg:px-16 py-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      <div className="sticky top-0 z-30 border-b border-white/[0.08] bg-[#08080c]/90 backdrop-blur-md px-6 sm:px-10 lg:px-14 py-4">
+        <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <Link
             href="/"
             className="inline-flex items-center gap-2 text-xs font-mono text-zinc-400 hover:text-white transition-colors"

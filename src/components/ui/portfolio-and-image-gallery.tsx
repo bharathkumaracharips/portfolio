@@ -87,84 +87,90 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isHovered, items, onSelect, handleNext, handlePrev, totalItems]);
 
-  // Wheel / Trackpad scroll support: locks while stepping between certs, unlocks on deliberate boundary scroll
+  // Unbreakable Section Scroll Lock: locks till completion across all certificates
   const lastWheelTime = useRef<number>(0);
-  const reachedEndTimestampRef = useRef<number>(0);
-  const reachedStartTimestampRef = useRef<number>(0);
+  const reachedEndRef = useRef<boolean>(false);
+  const reachedStartRef = useRef<boolean>(true);
 
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
+    const handleWheel = (e: WheelEvent) => {
+      const section = document.getElementById("certifications");
+      if (!section) return;
 
-    const onNativeWheel = (e: WheelEvent) => {
-      const isDown = e.deltaY > 15 || e.deltaX > 15;
-      const isUp = e.deltaY < -15 || e.deltaX < -15;
+      const rect = section.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
 
-      if (!isDown && !isUp) return;
+      // Section is in focus when it occupies the viewing area
+      const sectionInFocus =
+        (rect.top <= 120 && rect.bottom >= viewportHeight * 0.35) ||
+        (rect.top >= -100 && rect.top <= 100);
 
-      const currentIdx = currentIndexRef.current;
+      if (!sectionInFocus) return;
+
+      const isDown = e.deltaY > 0;
+      const isUp = e.deltaY < 0;
       const now = Date.now();
+      const currentIdx = currentIndexRef.current;
 
-      // Case 1: Reached the LAST certificate (e.g. 5 of 5)
+      // CASE 1: Reached the last certificate (e.g. 5 of 5)
       if (currentIdx >= totalItems - 1 && isDown) {
-        // Absorb leftover momentum of the swipe that brought us here
-        if (now - reachedEndTimestampRef.current < 500) {
-          e.preventDefault();
+        // If user already paused on the last certificate, next deliberate scroll down proceeds to #services
+        if (reachedEndRef.current && now - lastWheelTime.current > 350) {
+          reachedEndRef.current = false;
+          const nextSec = document.getElementById("services");
+          if (nextSec) nextSec.scrollIntoView({ behavior: "smooth" });
           return;
         }
-
-        // Deliberate secondary scroll: unlock and smoothly glide to next section (#services)
+        // Otherwise absorb lingering momentum to hold the last card firmly
         e.preventDefault();
-        const nextEl = document.getElementById("services");
-        if (nextEl) {
-          nextEl.scrollIntoView({ behavior: "smooth" });
-        }
         return;
       }
 
-      // Case 2: At the FIRST certificate (1 of 5)
+      // CASE 2: At the first certificate (1 of 5) and scrolling up
       if (currentIdx <= 0 && isUp) {
-        // Absorb leftover momentum
-        if (now - reachedStartTimestampRef.current < 500) {
-          e.preventDefault();
+        if (reachedStartRef.current && now - lastWheelTime.current > 350) {
+          reachedStartRef.current = false;
+          const prevSec = document.getElementById("work");
+          if (prevSec) prevSec.scrollIntoView({ behavior: "smooth" });
           return;
         }
-
-        // Deliberate secondary scroll: unlock and smoothly glide back up to #work
         e.preventDefault();
-        const prevEl = document.getElementById("work");
-        if (prevEl) {
-          prevEl.scrollIntoView({ behavior: "smooth" });
-        }
         return;
       }
 
-      // Case 3: Stepping between certificates — firmly lock scroll!
+      // CASE 3: Stepping through certificates — 100% LOCKED TILL COMPLETION!
       e.preventDefault();
 
-      if (now - lastWheelTime.current < 200) return;
+      // Keep section aligned cleanly at top
+      if (Math.abs(rect.top) > 8 && Math.abs(rect.top) < 150) {
+        window.scrollTo({ top: section.offsetTop, behavior: "instant" });
+      }
+
+      if (now - lastWheelTime.current < 220) return;
 
       if (isDown) {
         const next = Math.min(totalItems - 1, currentIdx + 1);
         setCurrentIndex(next);
         currentIndexRef.current = next;
         lastWheelTime.current = now;
+        reachedStartRef.current = false;
         if (next === totalItems - 1) {
-          reachedEndTimestampRef.current = now;
+          reachedEndRef.current = true;
         }
       } else if (isUp) {
         const prev = Math.max(0, currentIdx - 1);
         setCurrentIndex(prev);
         currentIndexRef.current = prev;
         lastWheelTime.current = now;
+        reachedEndRef.current = false;
         if (prev === 0) {
-          reachedStartTimestampRef.current = now;
+          reachedStartRef.current = true;
         }
       }
     };
 
-    el.addEventListener("wheel", onNativeWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onNativeWheel);
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
   }, [totalItems]);
 
   return (
@@ -179,24 +185,24 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
         const now = Date.now();
         if (diffY > 30) {
           if (currentIdx >= totalItems - 1) {
-            if (now - reachedEndTimestampRef.current > 400) {
+            if (reachedEndRef.current) {
               document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
             }
           } else {
             handleNext();
             if (currentIdx + 1 === totalItems - 1) {
-              reachedEndTimestampRef.current = now;
+              reachedEndRef.current = true;
             }
           }
         } else if (diffY < -30) {
           if (currentIdx <= 0) {
-            if (now - reachedStartTimestampRef.current > 400) {
+            if (reachedStartRef.current) {
               document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
             }
           } else {
             handlePrev();
             if (currentIdx - 1 === 0) {
-              reachedStartTimestampRef.current = now;
+              reachedStartRef.current = true;
             }
           }
         }

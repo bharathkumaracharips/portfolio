@@ -21,48 +21,73 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const currentIndexRef = useRef<number>(0);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [touchStartX, setTouchStartX] = useState<number>(0);
 
   const totalItems = items.length;
 
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (currentIndex >= totalItems && totalItems > 0) {
+      setCurrentIndex(0);
+      currentIndexRef.current = 0;
+    }
+  }, [totalItems, currentIndex]);
+
   const rotateToIndex = useCallback(
     (idx: number) => {
-      const normalizedIdx = (idx + totalItems) % totalItems;
+      const normalizedIdx = Math.max(0, Math.min(totalItems - 1, idx));
       setCurrentIndex(normalizedIdx);
+      currentIndexRef.current = normalizedIdx;
     },
     [totalItems]
   );
 
   const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % totalItems);
+    setCurrentIndex((prev) => {
+      const next = Math.min(totalItems - 1, prev + 1);
+      currentIndexRef.current = next;
+      return next;
+    });
   }, [totalItems]);
 
   const handlePrev = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + totalItems) % totalItems);
-  }, [totalItems]);
+    setCurrentIndex((prev) => {
+      const next = Math.max(0, prev - 1);
+      currentIndexRef.current = next;
+      return next;
+    });
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isHovered) return;
       if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        e.preventDefault();
-        handleNext();
+        if (currentIndexRef.current < totalItems - 1) {
+          e.preventDefault();
+          handleNext();
+        }
       } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        e.preventDefault();
-        handlePrev();
+        if (currentIndexRef.current > 0) {
+          e.preventDefault();
+          handlePrev();
+        }
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        onSelect(items[currentIndex]);
+        onSelect(items[currentIndexRef.current]);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [currentIndex, isHovered, items, onSelect, handleNext, handlePrev]);
+  }, [isHovered, items, onSelect, handleNext, handlePrev, totalItems]);
 
-  // Wheel / Trackpad scroll support for rotating through certificates (native non-passive to lock scroll)
+  // Wheel / Trackpad scroll support: locks while stepping between certs, unlocks at boundaries
   const lastWheelTime = useRef<number>(0);
 
   useEffect(() => {
@@ -70,24 +95,45 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
     if (!el) return;
 
     const onNativeWheel = (e: WheelEvent) => {
-      // Prevent the page from scrolling away while interacting with the carousel
+      const isDown = e.deltaY > 15 || e.deltaX > 15;
+      const isUp = e.deltaY < -15 || e.deltaX < -15;
+
+      if (!isDown && !isUp) return;
+
+      const currentIdx = currentIndexRef.current;
+
+      // When reaching the last certificate and scrolling down -> UNLOCK and let page scroll to next section (#services)
+      if (isDown && currentIdx >= totalItems - 1) {
+        return; // do NOT preventDefault!
+      }
+
+      // When at the first certificate and scrolling up -> UNLOCK and let page scroll back up to previous section (#work)
+      if (isUp && currentIdx <= 0) {
+        return; // do NOT preventDefault!
+      }
+
+      // Lock scroll while stepping across certificates
       e.preventDefault();
 
       const now = Date.now();
-      if (now - lastWheelTime.current < 180) return;
+      if (now - lastWheelTime.current < 200) return;
 
-      if (e.deltaY > 15 || e.deltaX > 15) {
-        handleNext();
+      if (isDown) {
+        const next = Math.min(totalItems - 1, currentIdx + 1);
+        setCurrentIndex(next);
+        currentIndexRef.current = next;
         lastWheelTime.current = now;
-      } else if (e.deltaY < -15 || e.deltaX < -15) {
-        handlePrev();
+      } else if (isUp) {
+        const prev = Math.max(0, currentIdx - 1);
+        setCurrentIndex(prev);
+        currentIndexRef.current = prev;
         lastWheelTime.current = now;
       }
     };
 
     el.addEventListener("wheel", onNativeWheel, { passive: false });
     return () => el.removeEventListener("wheel", onNativeWheel);
-  }, [handleNext, handlePrev]);
+  }, [totalItems]);
 
   return (
     <div
@@ -97,8 +143,12 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
       onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
       onTouchEnd={(e) => {
         const deltaX = e.changedTouches[0].clientX - touchStartX;
-        if (deltaX > 40) handlePrev();
-        else if (deltaX < -40) handleNext();
+        const currentIdx = currentIndexRef.current;
+        if (deltaX < -40) {
+          if (currentIdx < totalItems - 1) handleNext();
+        } else if (deltaX > 40) {
+          if (currentIdx > 0) handlePrev();
+        }
       }}
       tabIndex={0}
       role="region"
@@ -114,10 +164,19 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
 
       {/* Top Subtle Stage Indicator */}
       <div className="absolute top-3 left-4 z-20 flex items-center gap-2 pointer-events-none">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-pulse" />
+        <span
+          className={`w-1.5 h-1.5 rounded-full ${
+            currentIndex === totalItems - 1 ? "bg-emerald-400" : "bg-[#00F0FF] animate-pulse"
+          }`}
+        />
         <span className="text-[10px] font-mono tracking-widest text-[#00F0FF]/80 uppercase">
           ORBITAL ARCHIVE // {currentIndex + 1} OF {totalItems}
         </span>
+        {currentIndex === totalItems - 1 && (
+          <span className="text-[9px] font-mono text-emerald-400/90 border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            UNLOCKED • SCROLL DOWN FOR SERVICES ↓
+          </span>
+        )}
       </div>
 
       {/* Cards Stage (3D Orbital Arc with dedicated bottom gap for navigation) */}
@@ -237,13 +296,20 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            handlePrev();
+            if (currentIndex <= 0) {
+              const el = document.getElementById("work");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            } else {
+              handlePrev();
+            }
           }}
           className="pointer-events-auto flex items-center gap-1.5 px-3 py-2 rounded-lg bg-black/70 border border-white/10 text-zinc-300 hover:text-white hover:border-[#00F0FF]/40 backdrop-blur-md transition-all cursor-pointer shadow-lg"
           aria-label="Previous Certification"
         >
           <ChevronLeft className="w-4 h-4 text-[#00F0FF]" />
-          <span className="text-[11px] font-mono hidden sm:inline">PREV</span>
+          <span className="text-[11px] font-mono hidden sm:inline">
+            {currentIndex <= 0 ? "↑ WORK" : "PREV"}
+          </span>
         </button>
 
         {/* Carousel Pagination Dots */}
@@ -251,7 +317,10 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
           {items.map((_, i) => (
             <button
               key={i}
-              onClick={() => setCurrentIndex(i)}
+              onClick={() => {
+                setCurrentIndex(i);
+                currentIndexRef.current = i;
+              }}
               className={`h-1.5 rounded-full transition-all cursor-pointer ${
                 i === currentIndex
                   ? "w-6 bg-[#00F0FF] shadow-[0_0_8px_#00F0FF]"
@@ -265,12 +334,19 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
         <button
           onClick={(e) => {
             e.stopPropagation();
-            handleNext();
+            if (currentIndex >= totalItems - 1) {
+              const el = document.getElementById("services");
+              if (el) el.scrollIntoView({ behavior: "smooth" });
+            } else {
+              handleNext();
+            }
           }}
           className="pointer-events-auto flex items-center gap-1.5 px-3 py-2 rounded-lg bg-black/70 border border-white/10 text-zinc-300 hover:text-white hover:border-[#00F0FF]/40 backdrop-blur-md transition-all cursor-pointer shadow-lg"
           aria-label="Next Certification"
         >
-          <span className="text-[11px] font-mono hidden sm:inline">NEXT</span>
+          <span className="text-[11px] font-mono hidden sm:inline">
+            {currentIndex >= totalItems - 1 ? "SERVICES ↓" : "NEXT"}
+          </span>
           <ChevronRight className="w-4 h-4 text-[#00F0FF]" />
         </button>
       </div>

@@ -109,6 +109,8 @@ export function WorkProjectsSection() {
   // True Scroll Locking: intercept wheel/trackpad when within the section
   const lastWheelTime = useRef<number>(0);
   const accumulatedDelta = useRef<number>(0);
+  const reachedEndTimestampRef = useRef<number>(0);
+  const reachedStartTimestampRef = useRef<number>(0);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -116,32 +118,45 @@ export function WorkProjectsSection() {
 
     const handleWheel = (e: WheelEvent) => {
       const rect = container.getBoundingClientRect();
-      // Intercept only when the section is active in the viewport
+      // Intercept when the section occupies the viewport
       const isInView = rect.top <= 120 && rect.bottom >= window.innerHeight * 0.35;
       if (!isInView) return;
 
       const isDown = e.deltaY > 0;
       const isUp = e.deltaY < 0;
+      const now = Date.now();
 
-      // Allow natural scroll to next section (#certifications) if at the very last project and scrolling down
+      // Case 1: Reached the last project (12 of 12) and user scrolls down
       if (isDown && activeIdxRef.current >= total - 1) {
+        // Absorb leftover momentum of the swipe that brought us here
+        if (now - reachedEndTimestampRef.current < 500) {
+          e.preventDefault();
+          return;
+        }
+
+        // Deliberate secondary scroll: unlock and smoothly glide down to #certifications
+        e.preventDefault();
+        document.getElementById("certifications")?.scrollIntoView({ behavior: "smooth" });
         return;
       }
 
-      // Allow natural scroll to previous section (#experience) if at the very first project and scrolling up
+      // Case 2: At the first project (01 of 12) and user scrolls up
       if (isUp && activeIdxRef.current <= 0) {
+        // Absorb leftover momentum
+        if (now - reachedStartTimestampRef.current < 500) {
+          e.preventDefault();
+          return;
+        }
+
+        // Deliberate secondary scroll: unlock and smoothly glide back up to #experience
+        e.preventDefault();
+        document.getElementById("experience")?.scrollIntoView({ behavior: "smooth" });
         return;
       }
 
       // Lock the page scroll while cycling through projects!
       e.preventDefault();
 
-      // Ensure section stays pinned cleanly at top
-      if (Math.abs(rect.top) > 5 && Math.abs(rect.top) < 120) {
-        window.scrollTo({ top: container.offsetTop, behavior: "smooth" });
-      }
-
-      const now = Date.now();
       accumulatedDelta.current += e.deltaY;
 
       // Filter micro-jitter from trackpad inertia; trigger crisp stepped transitions
@@ -154,6 +169,9 @@ export function WorkProjectsSection() {
             const next = Math.min(total - 1, prev + 1);
             setDir(1);
             activeIdxRef.current = next;
+            if (next === total - 1) {
+              reachedEndTimestampRef.current = now;
+            }
             return next;
           });
         } else if (isUp) {
@@ -161,6 +179,9 @@ export function WorkProjectsSection() {
             const next = Math.max(0, prev - 1);
             setDir(-1);
             activeIdxRef.current = next;
+            if (next === 0) {
+              reachedStartTimestampRef.current = now;
+            }
             return next;
           });
         }
@@ -184,15 +205,25 @@ export function WorkProjectsSection() {
       const diffY = touchStartY - currentY; // positive = swipe up = scroll down
       const isDown = diffY > 0;
       const isUp = diffY < 0;
+      const now = Date.now();
 
       if (Math.abs(diffY) < 15) return;
 
-      if (isDown && activeIdxRef.current >= total - 1) return;
-      if (isUp && activeIdxRef.current <= 0) return;
+      if (isDown && activeIdxRef.current >= total - 1) {
+        if (now - reachedEndTimestampRef.current > 400) {
+          document.getElementById("certifications")?.scrollIntoView({ behavior: "smooth" });
+        }
+        return;
+      }
+      if (isUp && activeIdxRef.current <= 0) {
+        if (now - reachedStartTimestampRef.current > 400) {
+          document.getElementById("experience")?.scrollIntoView({ behavior: "smooth" });
+        }
+        return;
+      }
 
       e.preventDefault();
 
-      const now = Date.now();
       if (now - lastTouchTime > 280 && Math.abs(diffY) > 30) {
         lastTouchTime = now;
         touchStartY = currentY;
@@ -202,6 +233,9 @@ export function WorkProjectsSection() {
             const next = Math.min(total - 1, prev + 1);
             setDir(1);
             activeIdxRef.current = next;
+            if (next === total - 1) {
+              reachedEndTimestampRef.current = now;
+            }
             return next;
           });
         } else if (isUp) {
@@ -209,6 +243,9 @@ export function WorkProjectsSection() {
             const next = Math.max(0, prev - 1);
             setDir(-1);
             activeIdxRef.current = next;
+            if (next === 0) {
+              reachedStartTimestampRef.current = now;
+            }
             return next;
           });
         }

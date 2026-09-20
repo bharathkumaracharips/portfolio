@@ -87,8 +87,10 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isHovered, items, onSelect, handleNext, handlePrev, totalItems]);
 
-  // Wheel / Trackpad scroll support: locks while stepping between certs, unlocks at boundaries
+  // Wheel / Trackpad scroll support: locks while stepping between certs, unlocks on deliberate boundary scroll
   const lastWheelTime = useRef<number>(0);
+  const reachedEndTimestampRef = useRef<number>(0);
+  const reachedStartTimestampRef = useRef<number>(0);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -101,21 +103,45 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
       if (!isDown && !isUp) return;
 
       const currentIdx = currentIndexRef.current;
+      const now = Date.now();
 
-      // When reaching the last certificate and scrolling down -> UNLOCK and let page scroll to next section (#services)
-      if (isDown && currentIdx >= totalItems - 1) {
-        return; // do NOT preventDefault!
+      // Case 1: Reached the LAST certificate (e.g. 5 of 5)
+      if (currentIdx >= totalItems - 1 && isDown) {
+        // Absorb leftover momentum of the swipe that brought us here
+        if (now - reachedEndTimestampRef.current < 500) {
+          e.preventDefault();
+          return;
+        }
+
+        // Deliberate secondary scroll: unlock and smoothly glide to next section (#services)
+        e.preventDefault();
+        const nextEl = document.getElementById("services");
+        if (nextEl) {
+          nextEl.scrollIntoView({ behavior: "smooth" });
+        }
+        return;
       }
 
-      // When at the first certificate and scrolling up -> UNLOCK and let page scroll back up to previous section (#work)
-      if (isUp && currentIdx <= 0) {
-        return; // do NOT preventDefault!
+      // Case 2: At the FIRST certificate (1 of 5)
+      if (currentIdx <= 0 && isUp) {
+        // Absorb leftover momentum
+        if (now - reachedStartTimestampRef.current < 500) {
+          e.preventDefault();
+          return;
+        }
+
+        // Deliberate secondary scroll: unlock and smoothly glide back up to #work
+        e.preventDefault();
+        const prevEl = document.getElementById("work");
+        if (prevEl) {
+          prevEl.scrollIntoView({ behavior: "smooth" });
+        }
+        return;
       }
 
-      // Lock scroll while stepping across certificates
+      // Case 3: Stepping between certificates — firmly lock scroll!
       e.preventDefault();
 
-      const now = Date.now();
       if (now - lastWheelTime.current < 200) return;
 
       if (isDown) {
@@ -123,11 +149,17 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
         setCurrentIndex(next);
         currentIndexRef.current = next;
         lastWheelTime.current = now;
+        if (next === totalItems - 1) {
+          reachedEndTimestampRef.current = now;
+        }
       } else if (isUp) {
         const prev = Math.max(0, currentIdx - 1);
         setCurrentIndex(prev);
         currentIndexRef.current = prev;
         lastWheelTime.current = now;
+        if (prev === 0) {
+          reachedStartTimestampRef.current = now;
+        }
       }
     };
 
@@ -140,14 +172,33 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
       ref={containerRef}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+      onTouchStart={(e) => setTouchStartX(e.touches[0].clientY)}
       onTouchEnd={(e) => {
-        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const diffY = touchStartX - e.changedTouches[0].clientY;
         const currentIdx = currentIndexRef.current;
-        if (deltaX < -40) {
-          if (currentIdx < totalItems - 1) handleNext();
-        } else if (deltaX > 40) {
-          if (currentIdx > 0) handlePrev();
+        const now = Date.now();
+        if (diffY > 30) {
+          if (currentIdx >= totalItems - 1) {
+            if (now - reachedEndTimestampRef.current > 400) {
+              document.getElementById("services")?.scrollIntoView({ behavior: "smooth" });
+            }
+          } else {
+            handleNext();
+            if (currentIdx + 1 === totalItems - 1) {
+              reachedEndTimestampRef.current = now;
+            }
+          }
+        } else if (diffY < -30) {
+          if (currentIdx <= 0) {
+            if (now - reachedStartTimestampRef.current > 400) {
+              document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
+            }
+          } else {
+            handlePrev();
+            if (currentIdx - 1 === 0) {
+              reachedStartTimestampRef.current = now;
+            }
+          }
         }
       }}
       tabIndex={0}

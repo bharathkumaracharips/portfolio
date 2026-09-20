@@ -53,76 +53,50 @@ export function WorkProjectsSection() {
     setShowHint(false);
   }, []);
 
-  // Synchronize natural page scroll with project progression across Selected Works
-  useEffect(() => {
-    const handleScroll = () => {
-      const container = containerRef.current;
-      if (!container) return;
-
-      const rect = container.getBoundingClientRect();
-      const scrollableDist = container.offsetHeight - window.innerHeight;
-      if (scrollableDist <= 0) return;
-
-      // Scrolled past the top of the container
-      const scrolled = -rect.top;
-      const progress = Math.max(0, Math.min(1, scrolled / scrollableDist));
-
-      // Map progress [0..1] to [0..total - 1]
-      const newIdx = Math.min(total - 1, Math.floor(progress * total));
-      if (newIdx !== activeIdxRef.current) {
-        setDir(newIdx > activeIdxRef.current ? 1 : -1);
-        setActiveIdx(newIdx);
-        activeIdxRef.current = newIdx;
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [total]);
-
-  // Navigate to specific project by scrolling the pinned track
-  const scrollToProject = useCallback(
+  // Direct project selection
+  const setProject = useCallback(
     (index: number) => {
       dismissHint();
       setShowDetail(false);
-      const container = containerRef.current;
-      if (!container) {
-        setActiveIdx(index);
-        activeIdxRef.current = index;
-        return;
-      }
-      const scrollableDist = container.offsetHeight - window.innerHeight;
-      const targetScrollY =
-        container.offsetTop + (index / (total - 1)) * scrollableDist;
-      window.scrollTo({ top: targetScrollY, behavior: "smooth" });
+      const targetIdx = Math.max(0, Math.min(total - 1, index));
+      setDir(targetIdx > activeIdxRef.current ? 1 : -1);
+      setActiveIdx(targetIdx);
+      activeIdxRef.current = targetIdx;
     },
     [total, dismissHint]
   );
 
   const go = useCallback(
     (d: 1 | -1) => {
-      const nextIdx = (activeIdx + d + total) % total;
-      scrollToProject(nextIdx);
+      dismissHint();
+      setShowDetail(false);
+      const nextIdx = Math.max(0, Math.min(total - 1, activeIdx + d));
+      setDir(d);
+      setActiveIdx(nextIdx);
+      activeIdxRef.current = nextIdx;
     },
-    [activeIdx, total, scrollToProject]
+    [activeIdx, total, dismissHint]
   );
 
-  // Auto-dismiss hint after 4.5s
+  // Auto-dismiss hint after 5s
   useEffect(() => {
     if (!showHint) return;
-    const t = setTimeout(dismissHint, 4500);
+    const t = setTimeout(dismissHint, 5000);
     return () => clearTimeout(t);
   }, [showHint, dismissHint]);
 
   // Keyboard navigation (← → for prev/next, Esc to close modal)
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") {
-        go(1);
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        if (activeIdxRef.current < total - 1) {
+          go(1);
+        }
       }
-      if (e.key === "ArrowLeft") {
-        go(-1);
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        if (activeIdxRef.current > 0) {
+          go(-1);
+        }
       }
       if (e.key === "Escape") {
         setShowDetail(false);
@@ -130,7 +104,127 @@ export function WorkProjectsSection() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [go]);
+  }, [go, total]);
+
+  // True Scroll Locking: intercept wheel/trackpad when within the section
+  const lastWheelTime = useRef<number>(0);
+  const accumulatedDelta = useRef<number>(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const rect = container.getBoundingClientRect();
+      // Intercept only when the section is active in the viewport
+      const isInView = rect.top <= 120 && rect.bottom >= window.innerHeight * 0.35;
+      if (!isInView) return;
+
+      const isDown = e.deltaY > 0;
+      const isUp = e.deltaY < 0;
+
+      // Allow natural scroll to next section (#certifications) if at the very last project and scrolling down
+      if (isDown && activeIdxRef.current >= total - 1) {
+        return;
+      }
+
+      // Allow natural scroll to previous section (#experience) if at the very first project and scrolling up
+      if (isUp && activeIdxRef.current <= 0) {
+        return;
+      }
+
+      // Lock the page scroll while cycling through projects!
+      e.preventDefault();
+
+      // Ensure section stays pinned cleanly at top
+      if (Math.abs(rect.top) > 5 && Math.abs(rect.top) < 120) {
+        window.scrollTo({ top: container.offsetTop, behavior: "smooth" });
+      }
+
+      const now = Date.now();
+      accumulatedDelta.current += e.deltaY;
+
+      // Filter micro-jitter from trackpad inertia; trigger crisp stepped transitions
+      if (now - lastWheelTime.current > 240 && Math.abs(accumulatedDelta.current) > 20) {
+        lastWheelTime.current = now;
+        accumulatedDelta.current = 0;
+
+        if (isDown) {
+          setActiveIdx((prev) => {
+            const next = Math.min(total - 1, prev + 1);
+            setDir(1);
+            activeIdxRef.current = next;
+            return next;
+          });
+        } else if (isUp) {
+          setActiveIdx((prev) => {
+            const next = Math.max(0, prev - 1);
+            setDir(-1);
+            activeIdxRef.current = next;
+            return next;
+          });
+        }
+      }
+    };
+
+    // Touch swipe support for mobile
+    let touchStartY = 0;
+    let lastTouchTime = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const rect = container.getBoundingClientRect();
+      const isInView = rect.top <= 120 && rect.bottom >= window.innerHeight * 0.35;
+      if (!isInView) return;
+
+      const currentY = e.touches[0].clientY;
+      const diffY = touchStartY - currentY; // positive = swipe up = scroll down
+      const isDown = diffY > 0;
+      const isUp = diffY < 0;
+
+      if (Math.abs(diffY) < 15) return;
+
+      if (isDown && activeIdxRef.current >= total - 1) return;
+      if (isUp && activeIdxRef.current <= 0) return;
+
+      e.preventDefault();
+
+      const now = Date.now();
+      if (now - lastTouchTime > 280 && Math.abs(diffY) > 30) {
+        lastTouchTime = now;
+        touchStartY = currentY;
+
+        if (isDown) {
+          setActiveIdx((prev) => {
+            const next = Math.min(total - 1, prev + 1);
+            setDir(1);
+            activeIdxRef.current = next;
+            return next;
+          });
+        } else if (isUp) {
+          setActiveIdx((prev) => {
+            const next = Math.max(0, prev - 1);
+            setDir(-1);
+            activeIdxRef.current = next;
+            return next;
+          });
+        }
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    container.addEventListener("touchstart", handleTouchStart, { passive: true });
+    container.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      container.removeEventListener("touchstart", handleTouchStart);
+      container.removeEventListener("touchmove", handleTouchMove);
+    };
+  }, [total]);
 
   const textVariants = {
     enter: (d: number) => ({ opacity: 0, y: d > 0 ? 40 : -40 }),
@@ -142,24 +236,39 @@ export function WorkProjectsSection() {
     <section
       id="work"
       ref={containerRef}
-      className="relative w-full bg-[#020406] text-white border-t border-white/[0.04]"
-      style={{ height: `${total * 90}vh` }}
+      className="relative w-full h-screen min-h-[660px] max-h-[1080px] bg-[#020406] text-white border-t border-white/[0.04] flex flex-col justify-between overflow-hidden select-none"
     >
-      {/* ── STICKY PINNED CONTAINER (Sticks in viewport while scrolling through all projects) ── */}
-      <div className="sticky top-0 h-screen max-h-screen w-full overflow-hidden flex flex-col justify-between">
-
       {/* ── COMPACT TOP BAR ──────────────────────────────────── */}
       <div className="relative z-10 flex items-center justify-between px-6 sm:px-10 lg:px-14 shrink-0 border-b border-white/[0.05]" style={{ height: 52 }}>
-        <div className="flex items-center gap-4">
-          <p className="text-[9px] font-mono tracking-[0.25em] text-[#00F0FF]/50 uppercase">WORK // 02</p>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <p className="text-[9px] font-mono tracking-[0.25em] text-[#00F0FF]/60 uppercase">WORK // 02</p>
           <span className="text-white/10">|</span>
           <h2 className="text-sm sm:text-base font-black tracking-tight text-white">
-            SELECTED <span className="text-zinc-700">WORKS</span>
+            SELECTED <span className="text-zinc-600">WORKS</span>
           </h2>
+          {/* Status Lock Pill */}
+          <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px] font-mono text-cyan-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF] animate-pulse" />
+            <span>SCROLL LOCKED // {String(activeIdx + 1).padStart(2, "0")} OF {String(total).padStart(2, "0")}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-[9px] font-mono text-zinc-700 tracking-widest">TOTAL</span>
-          <span className="text-sm font-black text-zinc-700 tabular-nums">{String(total).padStart(2, "0")}</span>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          <a
+            href="#certifications"
+            className="text-[10px] font-mono text-zinc-500 hover:text-cyan-400 transition-colors flex items-center gap-1 py-1 px-2.5 rounded-md hover:bg-white/[0.04] border border-transparent hover:border-white/10"
+            title="Skip directly to Certifications"
+          >
+            <span>Skip to Certs</span>
+            <span>↓</span>
+          </a>
+          <span className="text-white/10">|</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-mono text-zinc-600 tracking-widest uppercase">Project</span>
+            <span className="text-sm font-black text-cyan-400 tabular-nums">{String(activeIdx + 1).padStart(2, "0")}</span>
+            <span className="text-xs font-mono text-zinc-600">/</span>
+            <span className="text-xs font-mono text-zinc-600 tabular-nums">{String(total).padStart(2, "0")}</span>
+          </div>
         </div>
       </div>
 
@@ -368,7 +477,7 @@ export function WorkProjectsSection() {
                 <button
                   key={p.id}
                   type="button"
-                  onClick={() => scrollToProject(i)}
+                  onClick={() => setProject(i)}
                   title={p.name}
                   className="transition-all duration-300 cursor-pointer rounded-full"
                   style={{
@@ -617,7 +726,6 @@ export function WorkProjectsSection() {
           </motion.div>
         )}
       </AnimatePresence>
-      </div>
     </section>
   );
 }

@@ -62,6 +62,33 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentIndex, isHovered, items, onSelect, handleNext, handlePrev]);
 
+  // Wheel / Trackpad scroll support for rotating through certificates (native non-passive to lock scroll)
+  const lastWheelTime = useRef<number>(0);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const onNativeWheel = (e: WheelEvent) => {
+      // Prevent the page from scrolling away while interacting with the carousel
+      e.preventDefault();
+
+      const now = Date.now();
+      if (now - lastWheelTime.current < 180) return;
+
+      if (e.deltaY > 15 || e.deltaX > 15) {
+        handleNext();
+        lastWheelTime.current = now;
+      } else if (e.deltaY < -15 || e.deltaX < -15) {
+        handlePrev();
+        lastWheelTime.current = now;
+      }
+    };
+
+    el.addEventListener("wheel", onNativeWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onNativeWheel);
+  }, [handleNext, handlePrev]);
+
   return (
     <div
       ref={containerRef}
@@ -116,11 +143,8 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
             <div
               key={cert.id}
               onClick={() => {
-                if (isActive) {
-                  onSelect(cert);
-                } else {
-                  rotateToIndex(idx);
-                }
+                // Clicking anywhere on any certificate opens inspect immediately!
+                onSelect(cert);
               }}
               style={{
                 transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
@@ -128,10 +152,10 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
                 opacity,
                 transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
               }}
-              className={`absolute w-[245px] sm:w-[280px] h-[335px] sm:h-[365px] p-4 sm:p-5 rounded-2xl border text-left flex flex-col justify-between cursor-pointer ${
+              className={`absolute w-[245px] sm:w-[280px] h-[335px] sm:h-[365px] p-4 sm:p-5 rounded-2xl border text-left flex flex-col justify-between cursor-pointer group ${
                 isActive
-                  ? "bg-[#0c0d14] border-[#00F0FF] shadow-[0_0_40px_rgba(0,240,255,0.25)] ring-1 ring-[#00F0FF]/40"
-                  : "bg-[#08080c] border-white/10 hover:border-white/30 hover:opacity-80"
+                  ? "bg-[#0c0d14] border-[#00F0FF] shadow-[0_0_40px_rgba(0,240,255,0.25)] ring-1 ring-[#00F0FF]/40 hover:scale-[1.06]"
+                  : "bg-[#08080c] border-white/10 hover:border-[#00F0FF]/50 hover:opacity-90 hover:scale-[0.92]"
               }`}
             >
               {/* Card Header */}
@@ -196,11 +220,11 @@ export const RadialScrollGallery: React.FC<RadialGalleryProps> = ({
                   className={`flex items-center gap-1 font-semibold transition-all ${
                     isActive
                       ? "text-[#00F0FF] translate-x-0"
-                      : "text-zinc-500"
+                      : "text-zinc-500 group-hover:text-[#00F0FF]"
                   }`}
                 >
-                  <span>{isActive ? "INSPECT" : "SELECT"}</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
+                  <span>INSPECT</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </span>
               </div>
             </div>

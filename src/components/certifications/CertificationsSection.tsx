@@ -22,10 +22,18 @@ export const CertificationsSection: React.FC = () => {
 
   const handleSelectCert = (cert: Certification) => {
     setSelectedCert(cert);
+    const el = document.getElementById("certifications");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handleReturnToArchive = () => {
     setSelectedCert(null);
+    const el = document.getElementById("certifications");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handleOpenDocumentViewer = (cert: Certification) => {
@@ -58,7 +66,7 @@ export const CertificationsSection: React.FC = () => {
           <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono text-zinc-400">
             <span>ORBITAL CAROUSEL</span>
             <span className="text-zinc-600">•</span>
-            <span className="text-[#00F0FF]">CLICK CARD TO INSPECT</span>
+            <span className="text-[#00F0FF] font-semibold">CLICK ANY CARD TO INSPECT</span>
           </div>
         </div>
 

@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { WorkPreviewCanvas, ProjectCategory } from "@/components/canvas/WorkMerkleDiscoveryCanvas";
 import { workCategoriesData, WorkProjectItem } from "@/data/work-categories";
-import { Github, ExternalLink, ChevronLeft, ChevronRight, X, Layers } from "lucide-react";
+import { Github, ExternalLink, ChevronLeft, ChevronRight, X, Layers, FileText, ArrowUpRight } from "lucide-react";
 
 const allProjects: (WorkProjectItem & { accentColor: string; catIndex: number })[] =
   workCategoriesData.flatMap((cat, ci) =>
@@ -31,11 +32,12 @@ export function WorkProjectsSection() {
   const [showDetail, setShowDetail] = useState(false);
   const [dir, setDir] = useState<1 | -1>(1);
 
+  const activeIdxRef = useRef(0);
   const project = allProjects[activeIdx];
   const total = allProjects.length;
 
-  const sectionRef = useRef<HTMLElement>(null);
-  const isInView = useInView(sectionRef, { amount: 0.25 });
+  const containerRef = useRef<HTMLElement>(null);
+  const isInView = useInView(containerRef, { amount: 0.1 });
   const [showHint, setShowHint] = useState(false);
   const hasTriggeredRef = useRef(false);
 
@@ -51,12 +53,60 @@ export function WorkProjectsSection() {
     setShowHint(false);
   }, []);
 
-  const go = useCallback((d: 1 | -1) => {
-    dismissHint();
-    setDir(d);
-    setShowDetail(false);
-    setActiveIdx((prev) => (prev + d + total) % total);
-  }, [total, dismissHint]);
+  // Synchronize natural page scroll with project progression across Selected Works
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      const scrollableDist = container.offsetHeight - window.innerHeight;
+      if (scrollableDist <= 0) return;
+
+      // Scrolled past the top of the container
+      const scrolled = -rect.top;
+      const progress = Math.max(0, Math.min(1, scrolled / scrollableDist));
+
+      // Map progress [0..1] to [0..total - 1]
+      const newIdx = Math.min(total - 1, Math.floor(progress * total));
+      if (newIdx !== activeIdxRef.current) {
+        setDir(newIdx > activeIdxRef.current ? 1 : -1);
+        setActiveIdx(newIdx);
+        activeIdxRef.current = newIdx;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [total]);
+
+  // Navigate to specific project by scrolling the pinned track
+  const scrollToProject = useCallback(
+    (index: number) => {
+      dismissHint();
+      setShowDetail(false);
+      const container = containerRef.current;
+      if (!container) {
+        setActiveIdx(index);
+        activeIdxRef.current = index;
+        return;
+      }
+      const scrollableDist = container.offsetHeight - window.innerHeight;
+      const targetScrollY =
+        container.offsetTop + (index / (total - 1)) * scrollableDist;
+      window.scrollTo({ top: targetScrollY, behavior: "smooth" });
+    },
+    [total, dismissHint]
+  );
+
+  const go = useCallback(
+    (d: 1 | -1) => {
+      const nextIdx = (activeIdx + d + total) % total;
+      scrollToProject(nextIdx);
+    },
+    [activeIdx, total, scrollToProject]
+  );
 
   // Auto-dismiss hint after 4.5s
   useEffect(() => {
@@ -69,21 +119,18 @@ export function WorkProjectsSection() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") {
-        dismissHint();
         go(1);
       }
       if (e.key === "ArrowLeft") {
-        dismissHint();
         go(-1);
       }
       if (e.key === "Escape") {
-        dismissHint();
         setShowDetail(false);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [go, dismissHint]);
+  }, [go]);
 
   const textVariants = {
     enter: (d: number) => ({ opacity: 0, y: d > 0 ? 40 : -40 }),
@@ -94,10 +141,13 @@ export function WorkProjectsSection() {
   return (
     <section
       id="work"
-      ref={sectionRef}
-      className="relative w-full bg-[#020406] text-white border-t border-white/[0.04] overflow-hidden flex flex-col"
-      style={{ height: "100svh", maxHeight: "100svh" }}
+      ref={containerRef}
+      className="relative w-full bg-[#020406] text-white border-t border-white/[0.04]"
+      style={{ height: `${total * 90}vh` }}
     >
+      {/* ── STICKY PINNED CONTAINER (Sticks in viewport while scrolling through all projects) ── */}
+      <div className="sticky top-0 h-screen max-h-screen w-full overflow-hidden flex flex-col justify-between">
+
       {/* ── COMPACT TOP BAR ──────────────────────────────────── */}
       <div className="relative z-10 flex items-center justify-between px-6 sm:px-10 lg:px-14 shrink-0 border-b border-white/[0.05]" style={{ height: 52 }}>
         <div className="flex items-center gap-4">
@@ -149,12 +199,14 @@ export function WorkProjectsSection() {
               </div>
 
               {/* Project name — the headline */}
-              <h3
-                className="font-black tracking-tight leading-[0.92] text-white mb-3"
+              <Link
+                href={`/projects/${project.id}`}
+                className="font-black tracking-tight leading-[0.92] text-white mb-3 hover:text-cyan-400 transition-colors group flex items-center gap-3"
                 style={{ fontSize: "clamp(1.4rem, 2.8vw, 2.6rem)" }}
               >
-                {project.name}
-              </h3>
+                <span>{project.name}</span>
+                <ArrowUpRight className="w-5 h-5 text-zinc-600 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
+              </Link>
 
               {/* Subtitle */}
               <p className="text-[12px] font-light text-zinc-500 leading-relaxed mb-4 max-w-[460px]">
@@ -195,30 +247,49 @@ export function WorkProjectsSection() {
               </div>
 
               {/* Action row */}
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-mono font-medium transition-all border cursor-pointer hover:scale-[1.03]"
+                  style={{
+                    borderColor: `${project.accentColor}50`,
+                    backgroundColor: `${project.accentColor}15`,
+                    color: project.accentColor,
+                  }}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Architecture &amp; Docs ↗</span>
+                </Link>
+
                 {project.githubUrl && (
                   <a
-                    href={project.githubUrl} target="_blank" rel="noreferrer"
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-white/[0.1] bg-white/[0.04] text-[11px] font-mono text-zinc-300 hover:border-white/[0.2] hover:text-white transition-all"
+                    href={project.githubUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-white/[0.1] bg-white/[0.04] text-[11px] font-mono text-zinc-300 hover:border-white/[0.2] hover:text-white transition-all"
                   >
                     <Github className="w-3 h-3" /> Repository
                   </a>
                 )}
+
                 {project.demoUrl && (
                   <a
-                    href={project.demoUrl} target="_blank" rel="noreferrer"
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-mono transition-all border"
+                    href={project.demoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[11px] font-mono transition-all border"
                     style={{ borderColor: `${project.accentColor}40`, backgroundColor: `${project.accentColor}10`, color: project.accentColor }}
                   >
                     <ExternalLink className="w-3 h-3" /> Live Demo
                   </a>
                 )}
+
                 <button
+                  type="button"
                   onClick={() => setShowDetail(true)}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-[11px] font-mono transition-all border cursor-pointer"
-                  style={{ borderColor: `${project.accentColor}20`, color: `${project.accentColor}80` }}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[11px] font-mono transition-all border border-white/[0.08] hover:border-white/20 text-zinc-400 hover:text-zinc-200 cursor-pointer"
                 >
-                  Architecture ↗
+                  Quick Spec
                 </button>
               </div>
             </motion.div>
@@ -244,14 +315,16 @@ export function WorkProjectsSection() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="absolute top-6 right-6 z-20 pointer-events-none"
+              className="absolute top-6 right-6 z-20"
             >
-              <span
-                className="text-[9px] font-mono tracking-widest uppercase px-3 py-1.5 rounded-full backdrop-blur-md border"
-                style={{ color: project.accentColor, borderColor: `${project.accentColor}30`, backgroundColor: "rgba(2,4,6,0.7)" }}
+              <Link
+                href={`/projects/${project.id}`}
+                className="text-[9px] font-mono tracking-widest uppercase px-3.5 py-1.5 rounded-full backdrop-blur-md border hover:border-cyan-400 transition-all flex items-center gap-1.5 group cursor-pointer"
+                style={{ color: project.accentColor, borderColor: `${project.accentColor}30`, backgroundColor: "rgba(2,4,6,0.75)" }}
               >
-                {project.category} — ARCHITECTURE PREVIEW
-              </span>
+                <span>{project.category} — INSPECT DOSSIER &amp; SEQUENCE FLOW</span>
+                <ArrowUpRight className="w-3 h-3 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </Link>
             </motion.div>
           </AnimatePresence>
         </div>
@@ -263,6 +336,7 @@ export function WorkProjectsSection() {
 
           {/* ── PREV ─────────────────────────────────────────── */}
           <button
+            type="button"
             onClick={() => go(-1)}
             className="group flex items-center gap-3 px-6 sm:px-10 lg:px-14 flex-1 text-left transition-all hover:bg-white/[0.02] cursor-pointer border-r border-white/[0.05]"
           >
@@ -293,7 +367,8 @@ export function WorkProjectsSection() {
               return (
                 <button
                   key={p.id}
-                  onClick={() => { setDir(i > activeIdx ? 1 : -1); setActiveIdx(i); setShowDetail(false); }}
+                  type="button"
+                  onClick={() => scrollToProject(i)}
                   title={p.name}
                   className="transition-all duration-300 cursor-pointer rounded-full"
                   style={{
@@ -518,8 +593,23 @@ export function WorkProjectsSection() {
                     <ExternalLink className="w-3.5 h-3.5" /> Live Demo
                   </a>
                 )}
-                <button onClick={() => setShowDetail(false)}
-                  className="ml-auto px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer">
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all border flex items-center gap-1.5"
+                  style={{
+                    borderColor: `${project.accentColor}50`,
+                    backgroundColor: `${project.accentColor}18`,
+                    color: project.accentColor,
+                  }}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Full Dossier &amp; Sequence Diagram ↗</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowDetail(false)}
+                  className="ml-auto px-4 py-2 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs font-mono text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
+                >
                   Close
                 </button>
               </div>
@@ -527,6 +617,7 @@ export function WorkProjectsSection() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </section>
   );
 }

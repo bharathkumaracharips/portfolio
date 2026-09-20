@@ -24,10 +24,10 @@ export const EndorsementsSection: React.FC<EndorsementsSectionProps> = ({
   return (
     <section
       id="endorsements"
-      className="relative w-full bg-[#08080c] text-white py-16 sm:py-20 lg:py-28 px-6 sm:px-10 lg:px-16 border-t border-white/[0.06] scroll-mt-14"
+      className="relative w-full bg-[#08080c] text-white py-16 sm:py-20 lg:py-28 px-6 sm:px-10 lg:px-14 border-t border-white/[0.06] scroll-mt-14"
       aria-label="Client Reviews and Testimonials"
     >
-      <div className="max-w-6xl mx-auto w-full flex flex-col gap-10 sm:gap-12">
+      <div className="max-w-[1600px] mx-auto w-full flex flex-col gap-10 sm:gap-12">
         {/* 1. Hero */}
         <EndorsementsHero />
 

@@ -331,10 +331,10 @@ export function ProtocolNarrative() {
                   Work
                 </a>
                 <a
-                  href="#teaching"
+                  href="#services"
                   className="hover:text-[#F5F5F2] transition-colors cursor-pointer"
                 >
-                  Teach
+                  Curricula
                 </a>
                 <a
                   href="#certifications"

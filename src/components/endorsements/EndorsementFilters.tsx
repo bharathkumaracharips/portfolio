@@ -1,47 +1,46 @@
 "use client";
 
 import React from "react";
-import { Endorsement } from "@/types";
+
+export type FilterCategory = "ALL" | "CLIENT" | "ENGINEERING" | "MENTORSHIP";
 
 interface EndorsementFiltersProps {
-  categories: string[];
-  activeCategory: string;
-  onSelectCategory: (cat: string) => void;
-  endorsements: Endorsement[];
+  activeCategory: FilterCategory;
+  onSelectCategory: (category: FilterCategory) => void;
 }
 
+const filterTabs: { id: FilterCategory; label: string }[] = [
+  { id: "ALL", label: "ALL" },
+  { id: "CLIENT", label: "CLIENT WORK" },
+  { id: "ENGINEERING", label: "ENGINEERING" },
+  { id: "MENTORSHIP", label: "MENTORSHIP" },
+];
+
 export const EndorsementFilters: React.FC<EndorsementFiltersProps> = ({
-  categories,
   activeCategory,
   onSelectCategory,
-  endorsements,
 }) => {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-white/10">
-      {categories.map((cat) => {
-        const count =
-          cat === "ALL"
-            ? endorsements.length
-            : endorsements.filter((e) => e.category === cat).length;
-        const isSelected = activeCategory === cat;
-
+    <div
+      role="tablist"
+      aria-label="Filter reviews by engagement category"
+      className="inline-flex flex-wrap items-center gap-1.5 p-1 rounded-lg bg-[#0c0c10] border border-white/[0.08]"
+    >
+      {filterTabs.map((tab) => {
+        const isActive = activeCategory === tab.id;
         return (
           <button
-            key={cat}
-            onClick={() => onSelectCategory(cat)}
-            className={`group flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-mono whitespace-nowrap transition-all duration-200 border cursor-pointer ${
-              isSelected
-                ? "bg-[#00F0FF]/10 text-[#00F0FF] border-[#00F0FF] shadow-[0_0_15px_rgba(0,240,255,0.2)]"
-                : "bg-white/[0.02] text-zinc-400 border-white/10 hover:border-white/20 hover:text-zinc-200"
+            key={tab.id}
+            role="tab"
+            aria-selected={isActive}
+            onClick={() => onSelectCategory(tab.id)}
+            className={`px-3 py-1.5 rounded-md text-xs font-mono transition-all duration-150 cursor-pointer ${
+              isActive
+                ? "bg-white/[0.08] text-white font-medium border border-white/[0.12]"
+                : "text-zinc-400 hover:text-zinc-200 border border-transparent"
             }`}
           >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                isSelected ? "bg-[#00F0FF] animate-pulse" : "bg-zinc-600"
-              }`}
-            />
-            <span className="font-semibold">{cat}</span>
-            <span className="text-zinc-600">(0{count})</span>
+            {tab.label}
           </button>
         );
       })}

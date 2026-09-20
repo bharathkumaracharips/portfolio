@@ -2,11 +2,10 @@
 
 import React, { useState, useMemo } from "react";
 import { endorsementsData } from "@/data/endorsements";
-import { Endorsement } from "@/types";
 import { EndorsementsHero } from "./EndorsementsHero";
-import { EndorsementFilters } from "./EndorsementFilters";
-import { EndorsementSignal } from "./EndorsementSignal";
-import { EndorsementDetail } from "./EndorsementDetail";
+import { EndorsementFilters, FilterCategory } from "./EndorsementFilters";
+import { EndorsementCard } from "./EndorsementCard";
+import { EndorsementsCTA } from "./EndorsementsCTA";
 
 interface EndorsementsSectionProps {
   isStandalonePage?: boolean;
@@ -15,72 +14,56 @@ interface EndorsementsSectionProps {
 export const EndorsementsSection: React.FC<EndorsementsSectionProps> = ({
   isStandalonePage = false,
 }) => {
-  const [activeCategory, setActiveCategory] = useState<string>("ALL");
-  const [activeSignalId, setActiveSignalId] = useState<string>(
-    endorsementsData[0]?.id || "signal-001"
-  );
-  const [detailEndorsement, setDetailEndorsement] = useState<Endorsement | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState<boolean>(false);
+  const [activeCategory, setActiveCategory] = useState<FilterCategory>("ALL");
 
-  // Derive available categories dynamically from genuine data
-  const availableCategories = useMemo(() => {
-    const cats = Array.from(new Set(endorsementsData.map((e) => e.category)));
-    return ["ALL", ...cats];
-  }, []);
-
-  // Filter endorsements
   const filteredEndorsements = useMemo(() => {
     if (activeCategory === "ALL") return endorsementsData;
     return endorsementsData.filter((e) => e.category === activeCategory);
   }, [activeCategory]);
 
-  const handleOpenDetail = (endorsement: Endorsement) => {
-    setDetailEndorsement(endorsement);
-    setIsDetailOpen(true);
-  };
-
-  const handleCloseDetail = () => {
-    setIsDetailOpen(false);
-  };
-
   return (
     <section
       id="endorsements"
-      className="relative w-full min-h-screen bg-[#050505] text-[#F5F5F2] py-12 sm:py-16 lg:py-20 px-6 sm:px-10 lg:px-14 flex flex-col justify-center border-t border-white/[0.05] scroll-mt-14"
-      aria-label="Endorsements & Testimonials - Signals from the Network"
+      className="relative w-full bg-[#08080c] text-white py-16 sm:py-20 lg:py-28 px-6 sm:px-10 lg:px-16 border-t border-white/[0.06] scroll-mt-14"
+      aria-label="Client Reviews and Testimonials"
     >
-      {/* Ambient Background Glows */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[850px] h-[400px] bg-cyan-950/15 blur-[150px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-16 right-10 w-[550px] h-[300px] bg-emerald-950/10 blur-[130px] pointer-events-none rounded-full" />
-
-      <div className="relative max-w-[1600px] mx-auto w-full flex flex-col gap-6 sm:gap-8">
+      <div className="max-w-6xl mx-auto w-full flex flex-col gap-10 sm:gap-12">
         {/* 1. Hero */}
         <EndorsementsHero />
 
-        {/* 2. Category Filters */}
-        <EndorsementFilters
-          categories={availableCategories}
-          activeCategory={activeCategory}
-          onSelectCategory={setActiveCategory}
-          endorsements={endorsementsData}
-        />
+        {/* 2. Filter Segmented Control */}
+        <div className="flex items-center">
+          <EndorsementFilters
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+          />
+        </div>
 
-        {/* 3. Interactive Signal Spotlight & 3D Network Canvas */}
-        <EndorsementSignal
-          endorsements={filteredEndorsements}
-          activeId={activeSignalId}
-          onSelectEndorsement={setActiveSignalId}
-          onOpenDetail={handleOpenDetail}
-        />
+        {/* 3. Review Cards (2-column desktop grid, 1-column mobile) */}
+        {filteredEndorsements.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            {filteredEndorsements.map((endorsement, index) => (
+              <EndorsementCard
+                key={endorsement.id}
+                endorsement={endorsement}
+                index={index}
+              />
+            ))}
+          </div>
+        ) : (
+          /* Quiet empty state (e.g. for MENTORSHIP when active cohorts are in flight) */
+          <div className="rounded-xl border border-white/[0.06] bg-[#0c0c10] p-10 text-center flex flex-col items-center justify-center gap-3">
+            <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest">
+              ACTIVE COHORTS IN PROGRESS
+            </span>
+            <p className="text-sm text-zinc-400 max-w-md leading-relaxed font-light">
+              Mentorship and curriculum reviews will be published following the graduation of the current systems engineering cohort.
+            </p>
+          </div>
+        )}
 
-
-
-        {/* 6. Detail Modal */}
-        <EndorsementDetail
-          endorsement={detailEndorsement}
-          isOpen={isDetailOpen}
-          onClose={handleCloseDetail}
-        />
+        {/* 4. Natural Conversion Bridge to Project Discussions */}
+        <EndorsementsCTA />
       </div>
     </section>
   );

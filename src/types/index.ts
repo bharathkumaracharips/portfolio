@@ -111,18 +111,19 @@ export interface Testimonial {
 
 export interface Endorsement {
   id: string;
-  signalNumber: string;
+  person: {
+    name?: string;
+    role: string;
+    organization?: string;
+    avatarInitials?: string;
+    linkedinUrl?: string;
+  };
+  category: "CLIENT" | "ENGINEERING" | "MENTORSHIP";
+  year: string;
+  relationship: string;
+  workedTogetherOn: string;
+  role: string; // Bharath's role on the project
   quote: string;
-  author: string;
-  role?: string;
-  organization?: string;
-  relationship?: string;
-  category: "ENGINEERING" | "TEACHING" | "COLLABORATION";
-  source?: string;
-  sourceUrl?: string;
-  image?: string;
-  featured?: boolean;
-  projectContext?: string;
-  highlights?: string[];
+  confidential?: boolean;
 }
 
